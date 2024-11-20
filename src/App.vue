@@ -1,9 +1,13 @@
 <template>
   <div id="app">
     <StatusHeader />
-    <div class="headline-container">
-      <h1 class="headline">Reactor Controller</h1>
-      <SubmitButton/>
+    <div class="content">
+      <div class="headline-container">
+        <h1 class="headline">Reactor Controller</h1>
+        <div class="file-container">
+          <SubmitButton/>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -31,6 +35,9 @@ export default defineComponent({
     color: #000000;
     margin-top: 10px;
   }
+  .content{
+    padding: 20px;
+  }
   .headline-container{
     display: flex;
     align-items: center; /* Vertikale Zentrierung von h1 und SubmitBar */
@@ -39,5 +46,12 @@ export default defineComponent({
   }
   .headline{
     font-size: 65px;
+    margin: 0;
+  }
+  .file-container{
+    position: absolute;
+    right: 0;
+    margin-right: 50px;
+    margin-top: 20px; /*verschiebt den file-container nach unten*/
   }
 </style>
