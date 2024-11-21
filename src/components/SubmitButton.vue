@@ -27,6 +27,7 @@ import { defineComponent, ref } from 'vue';
 export default defineComponent({
     name: 'SubmitButton',
     setup() {
+        const baseURL = process.env.VUE_APP_API_URL; //Access .env variable 
         const selectedFile = ref<File | null>(null);
         const fileInput = ref<HTMLInputElement | null>(null);
 
@@ -63,13 +64,14 @@ export default defineComponent({
                 const formData = new FormData();
                 formData.append('file', selectedFile.value);
                 // Beispiel: Datei an Backend senden
-                fetch('http://127.0.0.1:5000/upload', {
+                fetch('${baseURL}/upload', { //Beispiel pfad
                     method: 'POST',
                     body: formData,
                 })
                 .then((response) => response.json())
                 .then((data) => {
                     console.log('Upload erfolgreich:', data);
+                    closeForm();
                  })
                 .catch((error) => {
                     console.error('Fehler beim Hochladen:', error);

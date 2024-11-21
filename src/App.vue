@@ -8,6 +8,11 @@
           <SubmitButton/>
         </div>
       </div>
+      <div class="lanes-container">
+        <ReactorLane title="Lane 1"/>
+        <ReactorLane title="Lane 2"/>
+        <ReactorLane title="Lane 3"/>
+      </div>
     </div>
   </div>
 </template>
@@ -16,12 +21,14 @@
 import { defineComponent } from 'vue';
 import StatusHeader from './components/StatusHeader.vue';
 import SubmitButton from './components/SubmitButton.vue';
+import ReactorLane from './components/ReactorLane.vue';
 
 export default defineComponent({
   name: 'App',
   components: {
     StatusHeader,
     SubmitButton,
+    ReactorLane,
   },
 });
 </script>
@@ -54,4 +61,10 @@ export default defineComponent({
     margin-right: 50px;
     margin-top: 20px; /*verschiebt den file-container nach unten*/
   }
+  .lanes-container {
+    display: flex;
+    gap: 20px; /* Abstand zwischen den Lanes */
+    justify-content: center;
+    margin-top: 20px;
+}
 </style>
