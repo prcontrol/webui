@@ -14,9 +14,9 @@
     props: {
       title: {
         type: String as PropType<string>,
-        required: true
-      }
-    }
+        required: true,
+      },
+    },
   });
   </script>
   

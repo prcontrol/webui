@@ -30,10 +30,14 @@ export default defineComponent({
         const baseURL = process.env.VUE_APP_API_URL; //Access .env variable 
         const selectedFile = ref<File | null>(null);
         const fileInput = ref<HTMLInputElement | null>(null);
+        
+        const closeForm = () => {
+            selectedFile.value = null; // Setze die Datei auf null, um das Overlay auszublenden
+        };
 
         //öffnet Dateiauswahlfenster
         const triggerFileSelection = () => {
-            fileInput.value?.click() //Simuliert Mausklick auf input-Feld wenn fileInput.value nicht NULL oder undefined
+            fileInput.value?.click(); //Simuliert Mausklick auf input-Feld wenn fileInput.value nicht NULL oder undefined
         };
 
         // Datei wird ausgewählt
@@ -45,7 +49,7 @@ export default defineComponent({
                 return;
             }
             //Nur .json zulassen (höherer Schutz als rein im input tag)
-            if (file.type !== 'application/json' && !file.name.endsWith('.json')){
+            if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
                 alert('Unvalid file selected. Only .json files are allowed');
                 target.value = '';
                 return;
@@ -56,7 +60,6 @@ export default defineComponent({
         // Datei absenden beispielhaft 
         // Funktioniert natürlich noch nicht
         /* TODO:
-            - URL als Umgebungsvariable einrichten 
             - Axios statt fetch nutzen 
         */ 
         const submitFile = () => {
@@ -71,18 +74,13 @@ export default defineComponent({
                 .then((response) => response.json())
                 .then((data) => {
                     console.log('Upload erfolgreich:', data);
-                    closeForm();
+                    closeForm(); //Overlay schließen nach erfolgreichem submit
                  })
                 .catch((error) => {
                     console.error('Fehler beim Hochladen:', error);
                 });
             }
        };
-        
-       const closeForm = () => {
-            selectedFile.value = null; // Setze die Datei auf null, um das Overlay auszublenden
-        };
-        
     return {
         selectedFile,
         triggerFileSelection,
