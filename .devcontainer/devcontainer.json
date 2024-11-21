@@ -1,8 +1,19 @@
 // See https://containers.dev/implementors/json_reference/ for configuration reference
 {
-	"name": "Untitled Node.js project",
+	"name": "WebUI for prcontrol",
 	"build": {
-		"dockerfile": "Dockerfile"
+		"dockerfile": "Dockerfile",
+		"context": ".."
 	},
-  "remoteUser": "node"
+	"remoteUser": "node",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"EditorConfig.EditorConfig",
+				"Vue.volar",
+				"ms-vscode.vscode-typescript-next",
+				"dbaeumer.vscode-eslint"
+			]
+		}
+	}
 }
