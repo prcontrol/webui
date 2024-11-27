@@ -13,6 +13,7 @@
         <ReactorLane title="Lane 2"/>
         <ReactorLane title="Lane 3"/>
       </div>
+      <AddExperiment/>
     </div>
   </div>
 </template>
@@ -22,6 +23,7 @@ import { defineComponent } from 'vue';
 import StatusHeader from './components/StatusHeader.vue';
 import SubmitButton from './components/SubmitButton.vue';
 import ReactorLane from './components/ReactorLane.vue';
+import AddExperiment from './components/AddExperiment.vue'
 
 export default defineComponent({
   name: 'App',
@@ -29,6 +31,7 @@ export default defineComponent({
     StatusHeader,
     SubmitButton,
     ReactorLane,
+    AddExperiment,
   },
 });
 </script>
