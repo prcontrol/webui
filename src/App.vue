@@ -5,7 +5,10 @@
       <div class="headline-container">
         <h1 class="headline">Reactor Controller</h1>
         <div class="file-container">
-          <SubmitButton/>
+          <div class="align-file-container">
+            <AddExperiment/>
+            <SubmitButton/>
+          </div>
         </div>
       </div>
       <div class="lanes-container">
@@ -13,7 +16,7 @@
         <ReactorLane title="Lane 2"/>
         <ReactorLane title="Lane 3"/>
       </div>
-      <AddExperiment/>
+
     </div>
   </div>
 </template>
@@ -69,5 +72,10 @@ export default defineComponent({
     gap: 20px; /* Abstand zwischen den Lanes */
     justify-content: center;
     margin-top: 20px;
+}
+.align-file-container{
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
 }
 </style>
