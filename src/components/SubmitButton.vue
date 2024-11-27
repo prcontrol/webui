@@ -84,15 +84,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-button {
-  padding: 10px 20px;
-  margin: 10px 0;
-  background-color: #ffffff;
-  color: rgb(0, 0, 0);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+
 
 .add-button {
   font-size: 20px;

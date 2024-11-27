@@ -4,79 +4,64 @@
   <button class="add-experiment-button" @click="showForm = !showForm"><i class="fa fa-plus-square-o"></i></button>
   <div class="overlay-on-select" v-if="showForm">
     <div class="overlay-container">
+    <h2>Experiment anlegen</h2>
     <form @submit.prevent="handleInputSubmit">
       <div class="arrange-content">
       <div class="left-content">
       <div class="input-container">
         <label for="laufende-nr">Laufende Nr.</label>
-        <input tid="field1" v-model="formData.field1" type="number" required >
-      </div>
-      <div class="input-container">
-        <label for="labjournal-entry">Laborjournal Eintrag</label>
-        <input id="field2" v-model="formData.field2" type="text" required >
+        <input tid="uid" v-model="formData.uid" type="number" required >
       </div>
       <div class="input-container">
         <label for="start-date">Datum (Experiment Beginn)</label>
-        <input id="field3" v-model="formData.field3" type="date" required >
+        <input id="date" v-model="formData.date" type="date" required >
       </div>
       <div class="input-container">
         <label for="hardware-config">Konfiguration der Hardware (Version oder laufende Nummer)</label>
-        <input id="field4" v-model="formData.field4" type="number" required >
+        <input id="config_file" v-model="formData.config_file" type="number" required >
       </div>
       <div class="input-container">
         <label for="led-front">LED vorne (Laufende Nr. der LED)</label>
-        <input id="field5" v-model="formData.field5" type="number" required >
+        <input id="led_front" v-model="formData.led_front" type="number" required >
       </div>
       <div class="input-container">
         <label for="led-front-intensity">LED Intensität vorne</label>
-        <input id="field6" v-model="formData.field6" type="number" required >
-      </div>
-      <div class="input-container">
-        <label for="led-front-intensity-percent">LED vorne Intensität (%) </label>
-        <input id="field7" v-model="formData.field7" type="number" required >
+        <input id="led_front_intensity" v-model="formData.led_front_intensity" type="number" required >
       </div>
       <div class="input-container">
         <label for="led-front-distance-to-vial">Abstand LED vorne zu Vial (cm) </label>
-        <input id="field8" v-model="formData.field8" type="number" required >
+        <input id="led_front_distance_to_vial" v-model="formData.led_front_distance_to_vial" type="number" required >
       </div>
       </div>
-      <!-- weiter ab hier -->
-       <div class="right-content">
+
+      <div class="right-content">
       <div class="input-container">
         <label for="led-front-belichtungsdauer">Belichtungsdauer LED vorne (min) </label>
-        <input id="field9" v-model="formData.field9" type="time" required >
+        <input id="led_front_exposure_time" v-model="formData.led_front_exposure_time" type="number" required >
       </div>
       <div class="input-container">
         <label for="led-back">LED hinten (Laufende Nr. der LED) </label>
-        <input id="field10" v-model="formData.field10" type="number" required >
+        <input id="led_back" v-model="formData.led_back" type="number" required >
       </div>
       <div class="input-container">
         <label for="led-back-intensity">LED Intensität hinten</label>
-        <input id="field11" v-model="formData.field11" type="number" required >
-      </div>
-      <div class="input-container">
-        <label for="led-back-intensity-percent">LED hinten Intensität (%) </label>
-        <input id="field12" v-model="formData.field12" type="number" required >
+        <input id="led_back_intensity" v-model="formData.led_back_intensity" type="number" required >
       </div>
       <div class="input-container">
         <label for="led-back-distance-to-vial">Abstand LED hinten zu Vial (cm)  </label>
-        <input id="field13" v-model="formData.field13" type="number" required >
+        <input id="led_back_distance_to_vial" v-model="formData.led_back_distance_to_vial" type="number" required >
       </div>
       <div class="input-container">
         <label for="led-back-belichtungsdauer">Belichtungsdauer LED vorne (min) </label>
-        <input id="field14" v-model="formData.field14" type="time" required >
+        <input id="led_back_exposure_time" v-model="formData.led_back_exposure_time" type="number" required >
       </div>
       <div class="input-container">
         <label for="pos-thermocouple">Position des Thermocouples </label>
-        <input id="field15" v-model="formData.field15" type="text" required>
+        <input id="position_thermocouple" v-model="formData.position_thermocouple" type="text" required>
       </div>
       <div class="input-container">
-        <label for="size-probe">Größe Probengefäß (mL)</label>
-        <input id="field16" v-model="formData.field16" type="number" required >
-      </div>
-      <div class="input-container">
-        <label for="parallel-experiments">Parallele Experimente (Laufende Nr.) </label>
-        <input id="field17" v-model="formData.field17" type="text" required >
+        <label for="time-points-sample-taking">Ereignis zu Zeitpunkt X</label>
+        <input id="time_points_sample_taking" v-model="formData.time_points_sample_taking" type="text" required>
       </div>
       </div>
     </div>
@@ -90,62 +75,72 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import axios from 'axios';
 
 export default defineComponent({
    name: 'AddExperiment',
-   data(){
-    return {
-      showForm: false,
-      formData: {
-        field1: '',
-        field2: '',
-        field3: '',
-        field4: '',
-        field5: '',
-        field6: '',
-        field7: '',
-        field8: '',
-      }
-    };
-   },
-   methods: {
-    closeForm(){
-      this.showForm = false;
-    },
-
-    resetForm(){
-      Object.keys(this.formData).forEach((key) => {
-      this.formData[key] = '';
+   setup(){
+      const showForm = ref(false);
+      const formData = ref({
+        uid: '',
+        date: '',
+        config_file: '',
+        led_front: '',
+        led_front_intensity: '',
+        led_front_distance_to_vial: '',
+        led_front_exposure_time: '',
+        led_back: '',
+        led_back_intensity: '',
+        led_back_distance_to_vial: '',
+        led_back_exposure_time: '',
+        time_points_sample_taking: '',
+        position_thermocouple: '',
       });
-    },
 
-    async submitForm(){
-      if (!this.formData.field1) {
-        alert("Bitte das Feld 'Laufende Nr.' Ausfüllen."); // Sicherheitsabfrage
-        return;
-      }
+      const closeForm = () => {
+        showForm.value = false;
+      };
 
-      const jsonFile = new Blob([JSON.stringify(this.formData)], {
-          type: 'application/json',
+      const resetForm = () => {
+        Object.keys(formData.value).forEach((key) => {
+        formData.value[key] = '';
+        });
+      };
+
+      const submitForm = async () => {
+        if (!formData.value.uid) {
+         alert("Bitte das Feld 'Laufende Nr.' Ausfüllen."); // Sicherheitsabfrage
+         return;
+        }
+
+        const jsonFile = new Blob([JSON.stringify(formData.value)], {
+           type: 'application/json',
         });
 
-      const uploadJSON = new FormData();
-      uploadJSON.append('file', jsonFile, "formData.json");
-      //replace path with backend path
-      axios.post('some_path', uploadJSON, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        }
-      }).catch((err) => {
-        console.log(`Fehler beim hochladen: ${err}`)
-      })
+        const uploadJSON = new FormData();
+        uploadJSON.append('file', jsonFile, "formData.json");
+        //Console output of JSON data
+        console.log("JSON-Inhalt:", JSON.stringify(formData.value, null, 2));
+        //replace path with backend path
+        axios.post('upload_experiment_template', uploadJSON, {
+          headers: {
+           'Content-Type': 'multipart/form-data',
+          }
+        }).catch((err) => {
+          console.log(`Fehler beim hochladen: ${err}`)
+        })
 
-
-      closeForm();
-    }
-   }
+        closeForm();
+      };
+      return {
+        showForm,
+        formData,
+        closeForm,
+        resetForm,
+        submitForm,
+      };
+    },
 });
 </script>
 
@@ -155,6 +150,7 @@ export default defineComponent({
     color: rgb(0, 0, 0);
     border: none;
     font-size: 20px;
+
   }
   .add-experiment-button:hover::after{
     content: "Create Config";
@@ -170,7 +166,6 @@ export default defineComponent({
     white-space: nowrap;
     z-index: 10;
   }
-
 
   .overlay-on-select {
   position: fixed;
@@ -193,7 +188,7 @@ export default defineComponent({
   padding-right: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 800px;
+  width: 880px;
   height: auto;
 }
 
@@ -228,6 +223,7 @@ export default defineComponent({
   flex-direction: column; /* Label oben, Input unten */
   align-items: flex-start; /* Links ausrichten */
   margin-bottom: 5px; /* Abstand zwischen den Feldern */
+  padding-left: 17px;
 }
 
 .input-container label {
@@ -249,6 +245,7 @@ export default defineComponent({
   gap: 20px;
   background-color: white;
   border: none;
+  padding-top: 20px;
 }
 
 </style>
