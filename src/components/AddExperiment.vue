@@ -1,6 +1,7 @@
 <template>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <!--Add experiments by filling out a form -->
-  <button class="add-experiment-button" @click="showForm = !showForm">Form</button>
+  <button class="add-experiment-button" @click="showForm = !showForm"><i class="fa fa-plus-square-o"></i></button>
   <div class="overlay-on-select" v-if="showForm">
     <div class="overlay-container">
     <form @submit.prevent="handleInputSubmit">
@@ -155,6 +156,21 @@ export default defineComponent({
     border: none;
     font-size: 20px;
   }
+  .add-experiment-button:hover::after{
+    content: "Create Config";
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-70%);
+    background-color: #919191;
+    color: #fff;
+    padding: 5px 15px;
+    font-size: 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 10;
+  }
+
 
   .overlay-on-select {
   position: fixed;

@@ -1,7 +1,8 @@
 <template>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <div>
     <!-- Datei-Auswahl-Button -->
-    <label class="add-button" @click="triggerFileSelection" for="file-input">+</label>
+    <label class="add-button" @click="triggerFileSelection" for="file-input"><i class="fa fa-upload"></i></label>
     <input type="file" ref="fileInput" id="file-input" @change="onFileSelected" style="display: none;" accept=".json" />
   </div>
   <div class="overlay-on-select" v-if="selectedFile">
@@ -94,7 +95,7 @@ button {
 }
 
 .add-button {
-  font-size: 50px;
+  font-size: 20px;
 }
 
 .add-button:hover::after {
@@ -102,7 +103,7 @@ button {
   position: absolute;
   bottom: -20px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-30%);
   background-color: #919191;
   color: #fff;
   padding: 5px 15px;
