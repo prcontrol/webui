@@ -6,24 +6,24 @@
     <div class="overlay-container">
       <form @submit.prevent="handleSubmit">
         <div class="form-field">
-          <label for="field1">Laufende Nr.:</label>
-          <input id="field1" v-model="formData.field1" type="number" required />
+          <label for="uid">Laufende Nr.:</label>
+          <input id="uid" v-model="formData.uid" type="number" required />
         </div>
         <div class="form-field">
-          <label for="field2">Name:</label>
-          <input id="field2" v-model="formData.field2" type="text" required />
+          <label for="name">Name:</label>
+          <input id="name" v-model="formData.name" type="text" required />
         </div>
         <div class="form-field">
-          <label for="field3">Version:</label>
-          <input id="field3" v-model="formData.field3" type="number" required />
+          <label for="version">Version:</label>
+          <input id="version" v-model="formData.version" type="number" required />
         </div>
         <div class="form-field">
-          <label for="field4">Defekt:</label>
-          <input id="field4" v-model="formData.field4" type="checkbox" required />
+          <label for="defective">Defekt:</label>
+          <input id="defective" v-model="formData.defective" type="checkbox" required />
         </div>
         <div class="form-field">
-          <label for="field5">Gekauft am:</label>
-          <input id="field5" v-model="formData.field5" type="date" required />
+          <label for="date-bought">Gekauft am:</label>
+          <input id="date_bought" v-model="formData.date_bought" type="date" required />
         </div>
 
         <!-- Submit and Close Buttons -->
@@ -39,34 +39,33 @@ import { defineComponent, ref } from 'vue';
 import axios from 'axios';
 
 export default defineComponent({
-  name: 'AddThinkerforgeParts',
+  name: 'AddTinkerforgeParts',
   setup() {
     const showForm = ref(false);
-
-    // Form data structure
     const formData = ref({
-      field1: 0,
-      field2: '',
-      field3: 0,
-      field4: false,
-      field5: '',
+      uid: 0,
+      name: '',
+      version: 0,
+      defective: false,
+      date_bought: '',
     });
 
     // Handle form submission and create a JSON file
-    const handleSubmit = () => {
-      const jsonFile = new Blob([JSON.stringify(this)], {
+    const submitForm = () => {
+      const jsonFile = new Blob([JSON.stringify(formData.value)], {
           type: 'application/json',
         });
 
       const uploadJSON = new FormData();
-      uploadJSON.append('file', jsonFile, '${this.formData.field1}.json');
+      uploadJSON.append('file', jsonFile, 'formData.json');
 
-      axios.post('upload_experiment_config', uploadJSON, {
+      axios.post('upload_bricklet', uploadJSON, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
+      }).catch((err) => {
+        console.log(`Fehler beim hochladen: ${err}`)
       })
-
 
       // Close the form after submission
       closeForm();
@@ -80,8 +79,8 @@ export default defineComponent({
     return {
       showForm,
       formData,
-      handleSubmit,
-      closeForm
+      submitForm,
+      closeForm,
     };
   },
 });
