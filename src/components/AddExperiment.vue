@@ -1,8 +1,5 @@
 <template>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <!--Add experiments by filling out a form -->
-  <button class="add-experiment-button" @click="showForm = !showForm"><i class="fa fa-plus-square-o"></i></button>
-  <div class="overlay-on-select" v-if="showForm">
+  <div class="overlay-on-select" >
     <div class="overlay-container">
     <h2>Experiment anlegen</h2>
     <form @submit.prevent="handleInputSubmit">
@@ -75,12 +72,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onMounted, onBeforeUnmount} from 'vue';
 import axios from 'axios';
 
 export default defineComponent({
    name: 'AddExperiment',
-   setup(){
+   emits: ['close-form'],
+
+   setup(_,{emit}){
       const showForm = ref(false);
       const formData = ref({
         uid: '',
@@ -99,7 +98,8 @@ export default defineComponent({
       });
 
       const closeForm = () => {
-        showForm.value = false;
+        //showForm.value = false;
+        emit('close-form');
       };
 
       const resetForm = () => {
@@ -122,7 +122,6 @@ export default defineComponent({
         uploadJSON.append('file', jsonFile, "formData.json");
         //Console output of JSON data
         console.log("JSON-Inhalt:", JSON.stringify(formData.value, null, 2));
-        //replace path with backend path
         axios.post('upload_experiment_template', uploadJSON, {
           headers: {
            'Content-Type': 'multipart/form-data',
@@ -133,6 +132,20 @@ export default defineComponent({
 
         closeForm();
       };
+      const handleEsc = (event: KeyboardEvent) => {
+      // Schließt das Dropdown nur, wenn die ESC-Taste gedrückt wird
+      if(event.key === 'Escape') {
+        closeForm();  // Funktion hier korrekt aufrufen
+      }
+    };
+
+    onMounted(() => {
+      window.addEventListener('keydown', handleEsc);
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('keydown', handleEsc);
+    });
       return {
         showForm,
         formData,
@@ -145,27 +158,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-  .add-experiment-button{
-    background-color: white;
-    color: rgb(0, 0, 0);
-    border: none;
-    font-size: 20px;
-
-  }
-  .add-experiment-button:hover::after{
-    content: "Create Config";
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-70%);
-    background-color: #919191;
-    color: #fff;
-    padding: 5px 15px;
-    font-size: 10px;
-    border-radius: 4px;
-    white-space: nowrap;
-    z-index: 10;
-  }
 
   .overlay-on-select {
   position: fixed;
@@ -173,8 +165,6 @@ export default defineComponent({
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  /* Leicht verblasster Hintergrund */
   display: flex;
   justify-content: center;
   align-items: center;
