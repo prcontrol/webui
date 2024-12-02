@@ -3,7 +3,7 @@
   <div class="overlay-on-select">
     <div class="overlay-container">
       <h2>LED anlegen</h2>
-      <form @submit.prevent="handleSubmit">
+      <form >
         <div class="arrange-content">
         <div class="left-content">
         <div class="form-field">

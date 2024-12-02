@@ -2,7 +2,7 @@
   <div class="overlay-on-select" >
     <div class="overlay-container">
     <h2>Experiment anlegen</h2>
-    <form @submit.prevent="handleInputSubmit">
+    <form>
       <div class="arrange-content">
       <div class="left-content">
       <div class="input-container">
@@ -61,7 +61,7 @@
         <input id="time_points_sample_taking" v-model="formData.time_points_sample_taking" type="text" required>
       </div>
       </div>
-    </div>
+      </div>
     </form>
     <div class="form-buttons">
       <button @click="submitForm">Submit</button>
@@ -80,7 +80,6 @@ export default defineComponent({
    emits: ['close-form'],
 
    setup(_,{emit}){
-      const showForm = ref(false);
       const formData = ref({
         uid: '',
         date: '',
@@ -98,15 +97,10 @@ export default defineComponent({
       });
 
       const closeForm = () => {
-        //showForm.value = false;
-        emit('close-form');
+        emit('close-form'); //Mutterkomponente ist DropdownAddConf.vue
       };
 
-      const resetForm = () => {
-        Object.keys(formData.value).forEach((key) => {
-        formData.value[key] = '';
-        });
-      };
+
 
       const submitForm = async () => {
         if (!formData.value.uid) {
@@ -132,25 +126,26 @@ export default defineComponent({
 
         closeForm();
       };
+
+
       const handleEsc = (event: KeyboardEvent) => {
       // Schließt das Dropdown nur, wenn die ESC-Taste gedrückt wird
       if(event.key === 'Escape') {
         closeForm();  // Funktion hier korrekt aufrufen
       }
-    };
+      };
 
-    onMounted(() => {
-      window.addEventListener('keydown', handleEsc);
-    });
+      onMounted(() => {
+        window.addEventListener('keydown', handleEsc);
+      });
 
-    onBeforeUnmount(() => {
-      window.removeEventListener('keydown', handleEsc);
-    });
+      onBeforeUnmount(() => {
+        window.removeEventListener('keydown', handleEsc);
+      });
+
       return {
-        showForm,
         formData,
         closeForm,
-        resetForm,
         submitForm,
       };
     },
