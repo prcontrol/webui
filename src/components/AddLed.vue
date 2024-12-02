@@ -96,7 +96,7 @@ export default defineComponent({
   setup(_,{emit}) {
     const formData = ref({
       uid: '',
-      whm: '',
+      fwhm: '',
       max_of_emission: '',
       min_wavelength: '',
       max_wavelength: '',

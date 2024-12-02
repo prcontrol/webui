@@ -100,8 +100,6 @@ export default defineComponent({
         emit('close-form'); //Mutterkomponente ist DropdownAddConf.vue
       };
 
-
-
       const submitForm = async () => {
         if (!formData.value.uid) {
          alert("Bitte das Feld 'Laufende Nr.' Ausfüllen."); // Sicherheitsabfrage

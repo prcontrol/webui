@@ -6,7 +6,7 @@
         <h1 class="headline">Reactor Controller</h1>
         <div class="file-container">
           <div class="align-file-container">
-            <AddExperiment/>
+            <DropdownAddConf/>
             <SubmitButton/>
           </div>
         </div>
@@ -26,7 +26,7 @@ import { defineComponent } from 'vue';
 import StatusHeader from './components/StatusHeader.vue';
 import SubmitButton from './components/SubmitButton.vue';
 import ReactorLane from './components/ReactorLane.vue';
-import AddExperiment from './components/AddExperiment.vue'
+import DropdownAddConf from './components/DropdownAddConf.vue';
 
 export default defineComponent({
   name: 'App',
@@ -34,7 +34,7 @@ export default defineComponent({
     StatusHeader,
     SubmitButton,
     ReactorLane,
-    AddExperiment,
+    DropdownAddConf,
   },
 });
 </script>
