@@ -20,7 +20,7 @@
     </div>
 
     <div v-if="selectedForm === 'addConfig'">
-
+      <AddConfig @close-form="closeForm"/>
     </div>
     <div v-if="selectedForm === 'addLed'" >
       <AddLed @close-form="closeForm"/>
@@ -35,12 +35,14 @@
   import { defineComponent, ref } from 'vue';
   import AddExperiment from './AddExperiment.vue';
   import AddLed from './AddLed.vue';
+  import AddConfig from './AddConfig.vue';
 
   export default defineComponent({
     name: 'DropdownAddConf',
     components: {
       AddExperiment,
       AddLed,
+      AddConfig,
 
     },
     setup(){

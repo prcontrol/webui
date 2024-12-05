@@ -1,69 +1,64 @@
 <template>
   <div class="overlay-on-select" >
     <div class="overlay-container">
-    <h2>Experiment anlegen</h2>
+    <h2>Konfiguration anlegen</h2>
     <form>
       <div class="arrange-content">
       <div class="left-content">
       <div class="input-container">
-        <label for="laufende-nr">Laufende Nr.</label>
+        <label for="laufende-nr">Laufende Nr.:</label>
         <input tid="uid" v-model="formData.uid" type="number" required >
       </div>
       <div class="input-container">
-        <label for="start-date">Datum (Experiment Beginn)</label>
+        <label for="tinkerforge-bricklets">Wähle Tinkerforge Bricklet:</label>
+        <select v-model="formData.bricklet">
+         <option v-for="bricklet in bricklets" :key="bricklet.uid" :value="bricklet.uid">
+          {{ bricklet.name }}
+        </option>
+       </select>
+      </div>
+      <div class="input-container">
+        <label for="software-version">Software version: </label>
+        <input id="software_version" v-model="formData.software_version" type="text" required >
+      </div>
+      <div class="input-container">
+        <label for="date">Datum:</label>
         <input id="date" v-model="formData.date" type="date" required >
       </div>
       <div class="input-container">
-        <label for="hardware-config">Konfiguration der Hardware (Version oder laufende Nummer)</label>
-        <select v-model="formData.config_file" id="configDropdown">
-          <option value="" disabled selected>Wählen Sie eine Konfiguration</option>
-          <option v-for="config in configs" :key="config.uid" :value="config.uid">
-            {{ config.name }}
-          </option>
-      </select>
+        <label for="default-distance-led-vial">Standartwert für den Abstand der LEDs zu Vial (cm):</label>
+        <input id="default_distance_led_vial" v-model="formData.default_distance_led_vial" type="number" required >
       </div>
       <div class="input-container">
-        <label for="led-front">LED vorne (Laufende Nr. der LED)</label>
-        <input id="led_front" v-model="formData.led_front" type="number" required >
-      </div>
-      <div class="input-container">
-        <label for="led-front-intensity">LED Intensität vorne</label>
-        <input id="led_front_intensity" v-model="formData.led_front_intensity" type="number" required >
-      </div>
-      <div class="input-container">
-        <label for="led-front-distance-to-vial">Abstand LED vorne zu Vial (cm) </label>
-        <input id="led_front_distance_to_vial" v-model="formData.led_front_distance_to_vial" type="number" required >
+        <label for="default-position-thermocouple">Standartwert für die Position des Thermocouples:</label>
+        <input id="default_position_thermocouple" v-model="formData.default_position_thermocouple" type="text" required >
       </div>
       </div>
 
       <div class="right-content">
       <div class="input-container">
-        <label for="led-front-belichtungsdauer">Belichtungsdauer LED vorne (min) </label>
-        <input id="led_front_exposure_time" v-model="formData.led_front_exposure_time" type="number" required >
+        <label for="default-pwm-channels">Standartwerte für die PWM-Kanäle des Servo Bricklets</label>
+        <input id="default_pwm_channels" v-model="formData.default_pwm_channels" type="text" required >
       </div>
       <div class="input-container">
-        <label for="led-back">LED hinten (Laufende Nr. der LED) </label>
-        <input id="led_back" v-model="formData.led_back" type="number" required >
+        <label for="configuration-io-channels">Konfiguration der OUT- & IN-Kanäle der I/O-16 Bricklets:</label>
+        <input id="configuration_io_channels" v-model="formData.configuration_io_channels" type="text" required >
       </div>
       <div class="input-container">
-        <label for="led-back-intensity">LED Intensität hinten</label>
-        <input id="led_back_intensity" v-model="formData.led_back_intensity" type="number" required >
+        <label for="default-temperature-threshold">Standartwerte für die Temperatur-Werte:</label>
+        <input id="default_temperature_threshold" v-model="formData.led_back_intensity" type="number" required >
       </div>
       <div class="input-container">
-        <label for="led-back-distance-to-vial">Abstand LED hinten zu Vial (cm)  </label>
-        <input id="led_back_distance_to_vial" v-model="formData.led_back_distance_to_vial" type="number" required >
+        <label for="default-uv-threshold">Standartwert für den UV-Index:</label>
+        <input id="default_uv_threshold" v-model="formData.default_uv_threshold" type="number" required >
       </div>
       <div class="input-container">
-        <label for="led-back-belichtungsdauer">Belichtungsdauer LED vorne (min) </label>
-        <input id="led_back_exposure_time" v-model="formData.led_back_exposure_time" type="number" required >
+        <label for="default-sensor-query-interval">Standartwert für die Abfragegeschwindigkeit der Sensorik (sec):</label>
+        <input id="default_sensor_query_interval" v-model="formData.default_sensor_query_interval" type="number" required >
       </div>
       <div class="input-container">
-        <label for="pos-thermocouple">Position des Thermocouples </label>
-        <input id="position_thermocouple" v-model="formData.position_thermocouple" type="text" required>
-      </div>
-      <div class="input-container">
-        <label for="time-points-sample-taking">Zeitpunkte der Probenentnahme (Array [...])</label>
-        <input id="time_points_sample_taking" v-model="formData.time_points_sample_taking" type="text" :placeholder="'[1,10,...]'" required>
+        <label for="default-reaction-vessel-volume">Standartwert für das Volumen des Reaktionsgefäßes:</label>
+        <input id="default_reaction_vessel_volume" v-model="formData.default_reaction_vessel_volume" type="number" required>
       </div>
       </div>
       </div>
@@ -81,38 +76,31 @@ import { defineComponent, ref, onMounted, onBeforeUnmount} from 'vue';
 import axios from 'axios';
 
 export default defineComponent({
-   name: 'AddExperiment',
+   name: 'AddConfig',
    emits: ['close-form'],
 
    setup(_,{emit}){
-
       const formData = ref({
         uid: '',
+        tinkerforge_bricklets: '', //list of tinkerforge bricklets
+        software_version: '',
         date: '',
-        config_file: '',
-        led_front: '',
-        led_front_intensity: '',
-        led_front_distance_to_vial: '',
-        led_front_exposure_time: '',
-        led_back: '',
-        led_back_intensity: '',
-        led_back_distance_to_vial: '',
-        led_back_exposure_time: '',
-        time_points_sample_taking: '',
-        position_thermocouple: '',
+        default_distance_led_vial: '',
+        default_position_thermocouple: '',
+        default_pwm_channels: '', //list of floats
+        configuration_io_channels: '',
+        default_temperature_threshold: '',
+        default_uv_threshold: '',
+        default_sensor_query_interval: '',
+        default_reaction_vessel_volume: '',
+
       });
-
-
 
       const closeForm = () => {
         emit('close-form'); //Mutterkomponente ist DropdownAddConf.vue
       };
 
       const submitForm = async () => {
-        if (!formData.value.uid) {
-         alert("Bitte das Feld 'Laufende Nr.' Ausfüllen."); // Sicherheitsabfrage
-         return;
-        }
 
         const jsonFile = new Blob([JSON.stringify(formData.value)], {
            type: 'application/json',
@@ -122,7 +110,7 @@ export default defineComponent({
         uploadJSON.append('file', jsonFile, "formData.json");
         //Console output of JSON data
         console.log("JSON-Inhalt:", JSON.stringify(formData.value, null, 2));
-        axios.post('exp_tmp', uploadJSON, {
+        axios.post('config', uploadJSON, { //Placeholder mit route ersetzen
           headers: {
            'Content-Type': 'multipart/form-data',
           }
@@ -134,14 +122,13 @@ export default defineComponent({
       };
 
 
-      //handle config file fetching
-      const configs = ref<unknown[]>([]);
-
-      const loadConfigFiles = async () => {
-        const response = await axios.get('list_config');
-        const data = response.data.results;
-        configs.value = data;
+      const bricklets = ref<unknown[]>([]);
+      const loadBricklets = async () => {
+        const response = await axios.get('list_bricklet');
+        const data = response.data.result;
+        bricklets.value = data;
       };
+
 
 
       const handleEsc = (event: KeyboardEvent) => {
@@ -153,7 +140,7 @@ export default defineComponent({
 
       onMounted(() => {
         window.addEventListener('keydown', handleEsc);
-        loadConfigFiles();
+        loadBricklets();
       });
 
       onBeforeUnmount(() => {
@@ -164,8 +151,8 @@ export default defineComponent({
         formData,
         closeForm,
         submitForm,
-        loadConfigFiles,
-        configs,
+        bricklets,
+        loadBricklets,
       };
     },
 });
@@ -251,5 +238,4 @@ export default defineComponent({
   border: none;
   padding-top: 20px;
 }
-
 </style>
