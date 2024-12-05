@@ -48,10 +48,10 @@ export default defineComponent({
       selectedFile.value = file;
     };
 
-    // Datei absenden beispielhaft
-    // Funktioniert natürlich noch nicht
+
     /* TODO:
-        - Axios statt fetch nutzen
+        - where to handle the file distinction frontend or backend
+        to know which route to chose
     */
     const submitFile = () => {
       if (!selectedFile.value) {
@@ -61,7 +61,7 @@ export default defineComponent({
       const formData = new FormData();
       formData.append('file', selectedFile.value);
 
-      axios.post('upload_file', formData, {
+      axios.post('upload_file', formData, { //change route
         headers: {
           'Content-Type': 'multipart/form-data',
         }

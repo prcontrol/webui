@@ -35,7 +35,7 @@
           <input id="max_current" v-model="formData.max_current" type="text" required />
         </div>
         <div class="form-field">
-          <label for="max-current">Maximaler STrom (mA):</label>
+          <label for="max-current">Maximaler Strom (mA):</label>
           <input id="max_current" v-model="formData.max_current" type="number" required />
         </div>
         </div>
@@ -126,7 +126,7 @@ export default defineComponent({
       const uploadJSON = new FormData();
       uploadJSON.append('file', jsonFile, 'formData.json');
 
-      axios.post('upload_bricklet', uploadJSON, {
+      axios.post('led', uploadJSON, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
