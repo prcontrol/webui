@@ -1,68 +1,72 @@
 <template>
   <div class="overlay-on-select" >
     <div class="overlay-container">
-    <h2>Experiment anlegen</h2>
+    <h2>Create Experiment</h2>
     <form>
       <div class="arrange-content">
       <div class="left-content">
       <div class="input-container">
-        <label for="laufende-nr">Laufende Nr.</label>
+        <label for="laufende-nr">Unique Identifier:</label>
         <input tid="uid" v-model="formData.uid" type="number" required >
       </div>
       <div class="input-container">
-        <label for="start-date">Datum (Experiment Beginn)</label>
+        <label for="lab-journal">Lab journal:</label>
+        <input id="lab_journal" v-model="formData.lab_journal" type="text" required >
+      </div>
+      <div class="input-container">
+        <label for="start-date">Date:</label>
         <input id="date" v-model="formData.date" type="date" required >
       </div>
       <div class="input-container">
-        <label for="hardware-config">Konfiguration der Hardware (Version oder laufende Nummer)</label>
+        <label for="hardware-config">Hardware Configuration:</label>
         <select v-model="formData.config_file" id="configDropdown">
-          <option value="" disabled selected>Wählen Sie eine Konfiguration</option>
+          <option value="" disabled selected>Chose hardware configuration ...</option>
           <option v-for="config in configs" :key="config.uid" :value="config.uid">
             {{ config.name }}
           </option>
       </select>
       </div>
       <div class="input-container">
-        <label for="led-front">LED vorne (Laufende Nr. der LED)</label>
-        <input id="led_front" v-model="formData.led_front" type="number" required >
+        <label for="led-front">LED front (uid):</label>
+        <input id="led_front" v-model="formData.led_front" type="text" required >
       </div>
       <div class="input-container">
-        <label for="led-front-intensity">LED Intensität vorne</label>
+        <label for="led-front-intensity">LED front intensity:</label>
         <input id="led_front_intensity" v-model="formData.led_front_intensity" type="number" required >
       </div>
       <div class="input-container">
-        <label for="led-front-distance-to-vial">Abstand LED vorne zu Vial (cm) </label>
+        <label for="led-front-distance-to-vial">LED front distance to vial (cm):</label>
         <input id="led_front_distance_to_vial" v-model="formData.led_front_distance_to_vial" type="number" required >
       </div>
       </div>
 
       <div class="right-content">
       <div class="input-container">
-        <label for="led-front-belichtungsdauer">Belichtungsdauer LED vorne (min) </label>
+        <label for="led-front-belichtungsdauer">LED front exposure time (min):</label>
         <input id="led_front_exposure_time" v-model="formData.led_front_exposure_time" type="number" required >
       </div>
       <div class="input-container">
-        <label for="led-back">LED hinten (Laufende Nr. der LED) </label>
-        <input id="led_back" v-model="formData.led_back" type="number" required >
+        <label for="led-back">LED back (uid): </label>
+        <input id="led_back" v-model="formData.led_back" type="text" required >
       </div>
       <div class="input-container">
-        <label for="led-back-intensity">LED Intensität hinten</label>
+        <label for="led-back-intensity">LED back intensity:</label>
         <input id="led_back_intensity" v-model="formData.led_back_intensity" type="number" required >
       </div>
       <div class="input-container">
-        <label for="led-back-distance-to-vial">Abstand LED hinten zu Vial (cm)  </label>
+        <label for="led-back-distance-to-vial">LED back distance to vial (cm):</label>
         <input id="led_back_distance_to_vial" v-model="formData.led_back_distance_to_vial" type="number" required >
       </div>
       <div class="input-container">
-        <label for="led-back-belichtungsdauer">Belichtungsdauer LED vorne (min) </label>
+        <label for="led-back-belichtungsdauer">LED back exposure time (min):</label>
         <input id="led_back_exposure_time" v-model="formData.led_back_exposure_time" type="number" required >
       </div>
       <div class="input-container">
-        <label for="pos-thermocouple">Position des Thermocouples </label>
+        <label for="pos-thermocouple">Position Thermocouple:</label>
         <input id="position_thermocouple" v-model="formData.position_thermocouple" type="text" required>
       </div>
       <div class="input-container">
-        <label for="time-points-sample-taking">Zeitpunkte der Probenentnahme (Array [...])</label>
+        <label for="time-points-sample-taking">Time points sample taking:</label>
         <input id="time_points_sample_taking" v-model="formData.time_points_sample_taking" type="text" :placeholder="'[1,10,...]'" required>
       </div>
       </div>
@@ -89,6 +93,7 @@ export default defineComponent({
       const formData = ref({
         uid: '',
         date: '',
+        lab_journal: '', //has to be changed in backend
         config_file: '',
         led_front: '',
         led_front_intensity: '',
@@ -105,12 +110,12 @@ export default defineComponent({
 
 
       const closeForm = () => {
-        emit('close-form'); //Mutterkomponente ist DropdownAddConf.vue
+        emit('close-form'); //Mothercomponent is DropdownAddConf.vue
       };
 
       const submitForm = async () => {
-        if (!formData.value.uid) {
-         alert("Bitte das Feld 'Laufende Nr.' Ausfüllen."); // Sicherheitsabfrage
+        if (!formData.value.uid && !formData.value.lab_journal) {
+         alert("Missing required fields 'Unique Identifier' and 'Lab Journal'");
          return;
         }
 
@@ -129,25 +134,20 @@ export default defineComponent({
         }).catch((err) => {
           console.log(`Fehler beim hochladen: ${err}`)
         })
-
         closeForm();
       };
 
-
       //handle config file fetching
       const configs = ref<unknown[]>([]);
-
       const loadConfigFiles = async () => {
         const response = await axios.get('list_config');
         const data = response.data.results;
         configs.value = data;
       };
 
-
       const handleEsc = (event: KeyboardEvent) => {
-      // Schließt das Dropdown nur, wenn die ESC-Taste gedrückt wird
       if(event.key === 'Escape') {
-        closeForm();  // Funktion hier korrekt aufrufen
+        closeForm();
       }
       };
 
@@ -183,7 +183,6 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   z-index: 999;
-  /* Überlagert den Inhalt */
 }
 .overlay-container {
   background-color: white;
@@ -195,54 +194,44 @@ export default defineComponent({
   width: 880px;
   height: auto;
 }
-
 .left-content, .right-content {
-  flex: 1; /* Gleiche Breite für beide Inhalte */
+  flex: 1;
 }
-
 .left-content {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Abstand zwischen den Feldern */
+  gap: 10px;
 }
-
 .right-content {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Abstand zwischen den Feldern */
+  gap: 10px;
 }
 .arrange-content{
   display: flex;
   flex-direction: row;
-  gap: 20px; /* Abstand zwischen den Spalten */
-
+  gap: 20px;
 }
-
-
-/* Container für ein einzelnes Eingabefeld und Label */
 .input-container {
   display: flex;
-  flex-direction: column; /* Label oben, Input unten */
-  align-items: flex-start; /* Links ausrichten */
-  margin-bottom: 5px; /* Abstand zwischen den Feldern */
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 5px;
   padding-left: 17px;
 }
-
 .input-container label {
-  font-size: 15px; /* Schriftgröße des Labels */
-  margin-bottom: 5px; /* Abstand zwischen Label und Input */
-  text-align: left; /* Links ausgerichtet */
+  font-size: 15px;
+  margin-bottom: 5px;
+  text-align: left;
 }
-
 .input-container input,
 .input-container select {
-  width: 100%; /* Eingabefelder passen sich der verfügbaren Breite an */
-  max-width: auto; /* Optional: maximale Breite */
-  box-sizing: border-box; /* Padding in die Gesamtbreite einbeziehen */
+  width: 100%;
+  max-width: auto;
+  box-sizing: border-box;
 }
-
 .form-buttons{
   display: flex;
   justify-content: center;

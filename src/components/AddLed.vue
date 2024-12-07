@@ -2,12 +2,12 @@
   <!-- Form overlay, visible only when showForm is true -->
   <div class="overlay-on-select">
     <div class="overlay-container">
-      <h2>LED anlegen</h2>
+      <h2>Create LED</h2>
       <form >
         <div class="arrange-content">
         <div class="left-content">
         <div class="form-field">
-          <label for="uid">Laufende Nr.:</label>
+          <label for="uid">Unique Identifier:</label>
           <input id="uid" v-model="formData.uid" type="number" required />
         </div>
         <div class="form-field">
@@ -15,62 +15,58 @@
           <input id="fwhm" v-model="formData.fwhm" type="number" required />
         </div>
         <div class="form-field">
-          <label for="max-ofemission">Emissionsmaximum:</label>
+          <label for="max-of-emission">Maximum of emission:</label>
           <input id="max_of_emission" v-model="formData.max_of_emission" type="number" required />
         </div>
         <div class="form-field">
-          <label for="min-wavelength">Minimale Wellenlänge:</label>
+          <label for="min-wavelength">Minimal wavelength:</label>
           <input id="min_wavelength" v-model="formData.min_wavelength" type="number" required />
         </div>
         <div class="form-field">
-          <label for="max-wavelength">Maximale Wellenlänge:</label>
+          <label for="max-wavelength">Maximum wavelength:</label>
           <input id="max_wavelength" v-model="formData.max_wavelength" type="number" required />
         </div>
         <div class="form-field">
-          <label for="color">Farbe:</label>
+          <label for="color">Color:</label>
           <input id="color" v-model="formData.color" type="text" required />
         </div>
         <div class="form-field">
-          <label for="max-current">Farbe:</label>
+          <label for="max-current">Maximum current (mA):</label>
           <input id="max_current" v-model="formData.max_current" type="text" required />
-        </div>
-        <div class="form-field">
-          <label for="max-current">Maximaler Strom (mA):</label>
-          <input id="max_current" v-model="formData.max_current" type="number" required />
         </div>
         </div>
 
         <div class="right-content">
         <div class="form-field">
-          <label for="manufacturer-id">Hersteller-Nr.:</label>
+          <label for="manufacturer-id">Manufacturer ID:</label>
           <input id="manufacturer_id" v-model="formData.manufacturer_id" type="number" required />
         </div>
         <div class="form-field">
-          <label for="order_id">Bestell-Nr.:</label>
+          <label for="order_id">Order ID:</label>
           <input id="order_id" v-model="formData.order_id" type="number" required />
         </div>
         <div class="form-field">
-          <label for="date-soldering">Gelötet am:</label>
+          <label for="date-soldering">Date soldering:</label>
           <input id="date_soldering" v-model="formData.date_soldering" type="date" required />
         </div>
         <div class="form-field">
-          <label for="soldered-by">Gelötet von:</label>
+          <label for="soldered-by">Soldered by:</label>
           <input id="soldered_by" v-model="formData.soldered_by" type="text" required />
         </div>
         <div class="form-field">
-          <label for="operating-time">Kumulative Betriebszeit in Stunden:</label>
+          <label for="operating-time">Operating time (h):</label>
           <input id="operating_time" v-model="formData.operating_time" type="number" required />
         </div>
         <div class="form-field">
-          <label for="defect">Defekt (true / false):</label>
-          <input id="defect" v-model="formData.defect" type="text" required />
+          <label for="defect">Defect:</label>
+          <input id="defect" v-model="formData.defect" type="text" :placeholder="'false'" required />
         </div>
         <div class="form-field">
-          <label for="emission-spectrum">Emissionsspektrum:</label>
+          <label for="emission-spectrum">Emission spectrum:</label>
           <input id="emission_spectrum" v-model="formData.emission_spectrum" type="text" required />
         </div>
         <div class="form-field">
-          <label for="emission-spectrum-recorded-on">Emissionsspektrum aufgenommen am:</label>
+          <label for="emission-spectrum-recorded-on">Emission spectrum recorded on:</label>
           <input id="emission_spectrum_recorded_on" v-model="formData.emission_spectrum_recorded_on" type="date" required />
         </div>
         </div>
@@ -119,6 +115,11 @@ export default defineComponent({
 
     // Handle form submission and create a JSON file
     const submitForm = () => {
+      if (!formData.value.max_wavelength) {
+         alert("Missing required field 'Maximum wavelength'");
+         return;
+        }
+
       const jsonFile = new Blob([JSON.stringify(formData.value)], {
           type: 'application/json',
         });
@@ -134,14 +135,12 @@ export default defineComponent({
         console.log(`Fehler beim hochladen: ${err}`)
       })
 
-      // Close the form after submission
       closeForm();
     };
 
     const handleEsc = (event: KeyboardEvent) => {
-      // Schließt das Dropdown nur, wenn die ESC-Taste gedrückt wird
       if(event.key === 'Escape') {
-        closeForm();  // Funktion hier korrekt aufrufen
+        closeForm();
       }
       };
 

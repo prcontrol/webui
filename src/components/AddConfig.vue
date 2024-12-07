@@ -1,17 +1,18 @@
 <template>
   <div class="overlay-on-select" >
     <div class="overlay-container">
-    <h2>Konfiguration anlegen</h2>
+    <h2>Create Configuration</h2>
     <form>
       <div class="arrange-content">
       <div class="left-content">
       <div class="input-container">
-        <label for="laufende-nr">Laufende Nr.:</label>
+        <label for="laufende-nr">Unique Identifier:</label>
         <input tid="uid" v-model="formData.uid" type="number" required >
       </div>
       <div class="input-container">
-        <label for="tinkerforge-bricklets">Wähle Tinkerforge Bricklet:</label>
+        <label for="tinkerforge-bricklets">Select Tinkerforge bricklet:</label>
         <select v-model="formData.bricklet">
+        <option value="" disabled selected>Chose bricklet ...</option>
          <option v-for="bricklet in bricklets" :key="bricklet.uid" :value="bricklet.uid">
           {{ bricklet.name }}
         </option>
@@ -22,42 +23,42 @@
         <input id="software_version" v-model="formData.software_version" type="text" required >
       </div>
       <div class="input-container">
-        <label for="date">Datum:</label>
+        <label for="date">Date:</label>
         <input id="date" v-model="formData.date" type="date" required >
       </div>
       <div class="input-container">
-        <label for="default-distance-led-vial">Standartwert für den Abstand der LEDs zu Vial (cm):</label>
+        <label for="default-distance-led-vial">Default distance led to vial (cm):</label>
         <input id="default_distance_led_vial" v-model="formData.default_distance_led_vial" type="number" required >
       </div>
       <div class="input-container">
-        <label for="default-position-thermocouple">Standartwert für die Position des Thermocouples:</label>
+        <label for="default-position-thermocouple">Default position of thermocouple:</label>
         <input id="default_position_thermocouple" v-model="formData.default_position_thermocouple" type="text" required >
       </div>
       </div>
 
       <div class="right-content">
       <div class="input-container">
-        <label for="default-pwm-channels">Standartwerte für die PWM-Kanäle des Servo Bricklets</label>
+        <label for="default-pwm-channels">Default PWM channels:</label>
         <input id="default_pwm_channels" v-model="formData.default_pwm_channels" type="text" required >
       </div>
       <div class="input-container">
-        <label for="configuration-io-channels">Konfiguration der OUT- & IN-Kanäle der I/O-16 Bricklets:</label>
+        <label for="configuration-io-channels">Configuration IO channels (I/O-16 Bricklet):</label>
         <input id="configuration_io_channels" v-model="formData.configuration_io_channels" type="text" required >
       </div>
       <div class="input-container">
-        <label for="default-temperature-threshold">Standartwerte für die Temperatur-Werte:</label>
-        <input id="default_temperature_threshold" v-model="formData.led_back_intensity" type="number" required >
+        <label for="default-temperature-threshold">Default temperature threshold:</label>
+        <input id="default_temperature_threshold" v-model="formData.default_temperature_threshold" type="number" required >
       </div>
       <div class="input-container">
-        <label for="default-uv-threshold">Standartwert für den UV-Index:</label>
+        <label for="default-uv-threshold">Default UV threshold:</label>
         <input id="default_uv_threshold" v-model="formData.default_uv_threshold" type="number" required >
       </div>
       <div class="input-container">
-        <label for="default-sensor-query-interval">Standartwert für die Abfragegeschwindigkeit der Sensorik (sec):</label>
+        <label for="default-sensor-query-interval">Default sensor query interval (sec):</label>
         <input id="default_sensor_query_interval" v-model="formData.default_sensor_query_interval" type="number" required >
       </div>
       <div class="input-container">
-        <label for="default-reaction-vessel-volume">Standartwert für das Volumen des Reaktionsgefäßes:</label>
+        <label for="default-reaction-vessel-volume">Default reaction vessel volume:</label>
         <input id="default_reaction_vessel_volume" v-model="formData.default_reaction_vessel_volume" type="number" required>
       </div>
       </div>
@@ -82,7 +83,7 @@ export default defineComponent({
    setup(_,{emit}){
       const formData = ref({
         uid: '',
-        tinkerforge_bricklets: '', //list of tinkerforge bricklets
+        tinkerforge_bricklets: '', //list of tinkerforge bricklets returns the uid
         software_version: '',
         date: '',
         default_distance_led_vial: '',
@@ -97,10 +98,14 @@ export default defineComponent({
       });
 
       const closeForm = () => {
-        emit('close-form'); //Mutterkomponente ist DropdownAddConf.vue
+        emit('close-form'); //Mothercomponent is DropdownAddConf.vue
       };
 
       const submitForm = async () => {
+        if (!formData.value.date && !formData.value.default_distance_led_vial) {
+         alert("Missing required fields 'Date' and 'Default distance led to vial'.");
+         return;
+        }
 
         const jsonFile = new Blob([JSON.stringify(formData.value)], {
            type: 'application/json',
@@ -110,7 +115,7 @@ export default defineComponent({
         uploadJSON.append('file', jsonFile, "formData.json");
         //Console output of JSON data
         console.log("JSON-Inhalt:", JSON.stringify(formData.value, null, 2));
-        axios.post('config', uploadJSON, { //Placeholder mit route ersetzen
+        axios.post('config', uploadJSON, {
           headers: {
            'Content-Type': 'multipart/form-data',
           }
@@ -121,7 +126,7 @@ export default defineComponent({
         closeForm();
       };
 
-
+      //fetch the bricklets from backend
       const bricklets = ref<unknown[]>([]);
       const loadBricklets = async () => {
         const response = await axios.get('list_bricklet');
@@ -129,12 +134,10 @@ export default defineComponent({
         bricklets.value = data;
       };
 
-
-
+      //close form if ESC key pressed
       const handleEsc = (event: KeyboardEvent) => {
-      // Schließt das Dropdown nur, wenn die ESC-Taste gedrückt wird
       if(event.key === 'Escape') {
-        closeForm();  // Funktion hier korrekt aufrufen
+        closeForm();
       }
       };
 
@@ -170,7 +173,6 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   z-index: 999;
-  /* Überlagert den Inhalt */
 }
 .overlay-container {
   background-color: white;
@@ -182,54 +184,44 @@ export default defineComponent({
   width: 880px;
   height: auto;
 }
-
 .left-content, .right-content {
-  flex: 1; /* Gleiche Breite für beide Inhalte */
+  flex: 1;
 }
-
 .left-content {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Abstand zwischen den Feldern */
+  gap: 10px;
 }
-
 .right-content {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Abstand zwischen den Feldern */
+  gap: 10px;
 }
 .arrange-content{
   display: flex;
   flex-direction: row;
-  gap: 20px; /* Abstand zwischen den Spalten */
-
+  gap: 20px;
 }
-
-
-/* Container für ein einzelnes Eingabefeld und Label */
 .input-container {
   display: flex;
-  flex-direction: column; /* Label oben, Input unten */
-  align-items: flex-start; /* Links ausrichten */
-  margin-bottom: 5px; /* Abstand zwischen den Feldern */
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 5px;
   padding-left: 17px;
 }
-
 .input-container label {
-  font-size: 15px; /* Schriftgröße des Labels */
-  margin-bottom: 5px; /* Abstand zwischen Label und Input */
-  text-align: left; /* Links ausgerichtet */
+  font-size: 15px;
+  margin-bottom: 5px;
+  text-align: left;
 }
-
 .input-container input,
 .input-container select {
-  width: 100%; /* Eingabefelder passen sich der verfügbaren Breite an */
-  max-width: auto; /* Optional: maximale Breite */
-  box-sizing: border-box; /* Padding in die Gesamtbreite einbeziehen */
+  width: 100%;
+  max-width: auto;
+  box-sizing: border-box;
 }
-
 .form-buttons{
   display: flex;
   justify-content: center;
@@ -238,4 +230,5 @@ export default defineComponent({
   border: none;
   padding-top: 20px;
 }
+
 </style>

@@ -4,11 +4,11 @@
     <button class="button-class" @click="showDropdown = !showDropdown"><i class="fa fa-plus-square-o"></i></button>
     <div class="overlay-on-select" v-if="showDropdown">
     <div class="overlay-container" >
-      <label for="formSelector" class="form-header">Wähle zu erstellende Konfiguration</label>
+      <label for="formSelector" class="form-header">Create Configuration</label>
       <div class="boarder-to-header">
       <select class="dropdown-select" id="formSelector" v-model="selectedForm" @change="closeDropdown">
-        <option value="">Bitte wählen...</option>
-        <option value="addConfig">Konfiguration</option>
+        <option value="">Select configuration to create...</option>
+        <option value="addConfig">Configuration File</option>
         <option value="addLed">LED</option>
         <option value="addExperiment">Experiment</option>
       </select>
@@ -43,7 +43,6 @@
       AddExperiment,
       AddLed,
       AddConfig,
-
     },
     setup(){
       const showDropdown = ref(false);
@@ -110,7 +109,7 @@
   max-width: 400px;
 }
 .boarder-to-header{
-  padding-top: 30px;
+  padding-top: 40px;
   align-items: center;
 }
 .button-class{
@@ -136,7 +135,7 @@
 .close-button{
   display: flex;
   justify-content: center;
-  gap: 20px;
+  margin-top: 40px;
   background-color: white;
   border: none;
   padding-top: 20px;
