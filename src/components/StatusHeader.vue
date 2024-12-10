@@ -6,11 +6,11 @@
         <span class="status-green">Connected</span> <!--nur zum anschauen: remove later-->
     </div>
     <div class="status-item">
-        <span class="status-label">STROM-BOX:</span>
+        <span class="status-label">POWER-BOX:</span>
         <span class="status-green">Connected</span>
     </div>
     <div class="status-item">
-        <span class="status-label">TEMPERATUR: 22°C</span>
+        <span class="status-label">TEMPERATURE: 22°C</span>
     </div>
     <div class="status-item">
         <span class="status-label">UV-INDEX: 2</span>
