@@ -5,7 +5,10 @@
       <div class="headline-container">
         <h1 class="headline">Reactor Controller</h1>
         <div class="file-container">
-          <SubmitButton/>
+          <div class="align-file-container">
+            <DropdownAddConf/>
+            <SubmitButton/>
+          </div>
         </div>
       </div>
       <div class="lanes-container">
@@ -13,6 +16,7 @@
         <ReactorLane title="Lane 2"/>
         <ReactorLane title="Lane 3"/>
       </div>
+
     </div>
   </div>
 </template>
@@ -22,6 +26,7 @@ import { defineComponent } from 'vue';
 import StatusHeader from './components/StatusHeader.vue';
 import SubmitButton from './components/SubmitButton.vue';
 import ReactorLane from './components/ReactorLane.vue';
+import DropdownAddConf from './components/DropdownAddConf.vue';
 
 export default defineComponent({
   name: 'App',
@@ -29,6 +34,7 @@ export default defineComponent({
     StatusHeader,
     SubmitButton,
     ReactorLane,
+    DropdownAddConf,
   },
 });
 </script>
@@ -66,5 +72,10 @@ export default defineComponent({
     gap: 20px; /* Abstand zwischen den Lanes */
     justify-content: center;
     margin-top: 20px;
+}
+.align-file-container{
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
 }
 </style>
