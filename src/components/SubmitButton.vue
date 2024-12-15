@@ -38,7 +38,7 @@ import { defineComponent, ref } from 'vue';
 import axios from 'axios';
 
 export default defineComponent({
-  name: 'DropdownFileUpload',
+  name: 'SubmitButton',
   setup() {
     const showDropdown = ref(false);
     const selectedForm = ref('');
