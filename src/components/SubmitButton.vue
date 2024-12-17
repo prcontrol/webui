@@ -66,9 +66,9 @@ export default defineComponent({
 
         // Determine route
         let route = '';
-        if (selectedForm.value === 'led') route = '/upload-led';
-        if (selectedForm.value === 'config') route = '/upload-config';
-        if (selectedForm.value === 'experiment') route = '/upload-experiment';
+        if (selectedForm.value === 'led') route = 'led';
+        if (selectedForm.value === 'config') route = 'config';
+        if (selectedForm.value === 'experiment') route = 'exp_tmp';
 
         try {
           const response = await axios.post(route, formData, {
