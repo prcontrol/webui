@@ -67,7 +67,7 @@ export const pcrData = reactive({
   initWebSocket(url: string): void {
     webSocket.openWebSocket(url);
 
-    //Get header data
+    //Get data
     webSocket.subscribe('pcr_data', (message) => {
       this.allData = {...this.allData, ...message.data};
     });
