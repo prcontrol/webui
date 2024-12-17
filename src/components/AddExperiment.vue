@@ -148,7 +148,7 @@ export default defineComponent({
       };
 
       //handle config file fetching
-      const configs = ref<unknown[]>([]);
+      const configs = ref<any[]>([]);
       const loadConfigFiles = async () => {
         const response = await axios.get('list_config');
         const data = response.data.results;

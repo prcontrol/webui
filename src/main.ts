@@ -1,10 +1,20 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import axios from 'axios';
+import { pcrData } from './dataStore';
 
 // not sure if this is the right way to do it...
 if(process.env.VUE_APP_PRCONTROL_API_URL == undefined) {
   alert("VUE_APP_PRCONTROL_API_URL not set!");
 }
 axios.defaults.baseURL = process.env.VUE_APP_PRCONTROL_API_URL;
+
+const wsUrl = process.env.VUE_APP_PRCONTROL_API_URL.replace(/^http/, 'ws');
+
+// globally initialize websocket
+pcrData.initWebSocket(wsUrl);
+
 createApp(App).mount('#app');
+
+
+

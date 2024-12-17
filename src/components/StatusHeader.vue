@@ -2,28 +2,34 @@
 <!--Status Anzeigen hardcodet zum Veranschaulichen: später Werte von Backend abrufen-->
   <header class="status-header">
     <div class="status-item">
-        <span class="status-label">PHOTO-BOX:</span>
-        <span class="status-green">Connected</span> <!--nur zum anschauen: remove later-->
+        <span class="status-label">PHOTO-BOX: {{ }}</span>
     </div>
     <div class="status-item">
-        <span class="status-label">POWER-BOX:</span>
-        <span class="status-green">Connected</span>
+        <span class="status-label">POWER-BOX: {{  }}</span>
     </div>
     <div class="status-item">
-        <span class="status-label">TEMPERATURE: 22°C</span>
+        <span class="status-label">TEMPERATURE: {{ statusData.ambient_temperature}}°C</span>
     </div>
     <div class="status-item">
-        <span class="status-label">UV-INDEX: 2</span>
+        <span class="status-label">UV-INDEX: {{ statusData.uv_index}}</span>
     </div>
   </header>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent} from 'vue';
+import { pcrData} from '@/dataStore';
 
 export default defineComponent({
   name: 'StatusHeader',
 
+  setup(){
+    const statusData = pcrData.allData.reactor_box;
+
+    return{
+      statusData,
+    };
+  },
 });
 </script>
 
