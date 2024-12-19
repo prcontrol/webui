@@ -102,7 +102,7 @@ export const pcrData = reactive({
 
     //Get data
     webSocket.subscribe('pcr_data', (message) => {
-      this.allData = {...this.allData, ...message.data};
+      this.allData = message.data;
     });
   },
 })

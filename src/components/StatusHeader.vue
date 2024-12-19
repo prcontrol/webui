@@ -2,7 +2,7 @@
 <!--Status Anzeigen hardcodet zum Veranschaulichen: später Werte von Backend abrufen-->
   <header class="status-header">
     <div class="status-item">
-        <span class="status-label">PHOTO-BOX: {{ }}</span>
+        <span class="status-label">PHOTO-BOX: {{  backendStatus === 1 ? 'Online' : 'Offline'  }}</span>
     </div>
     <div class="status-item">
         <span class="status-label">POWER-BOX: {{  }}</span>
@@ -17,8 +17,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent} from 'vue';
+import { defineComponent, ref, } from 'vue';
 import { pcrData} from '@/dataStore';
+import axios from 'axios';
 
 export default defineComponent({
   name: 'StatusHeader',
@@ -26,8 +27,19 @@ export default defineComponent({
   setup(){
     const statusData = pcrData.allData.reactor_box;
 
+    const backendStatus = ref<number>(0);
+
+    axios.get('/')
+      .then(() => {
+        backendStatus.value = 1; // Backend erreichbar
+      })
+      .catch(() => {
+        backendStatus.value = 0; // Backend nicht erreichbar
+      });
+
     return{
       statusData,
+      backendStatus,
     };
   },
 });
