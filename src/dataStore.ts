@@ -96,12 +96,13 @@ export const pcr_data = reactive(
   });
 
 export function register_pcr_data() {
-  ws_observables.pcrdata.register((data: any) => {
+  ws_observables.pcrdata.register((data) => {
      // Logge die gesamte empfangene Datenstruktur zur Überprüfung
     console.log("UPDATE empfangen:", JSON.stringify(data, null, 2));
 
 
     const reactor_box = data.reactor_box;
+    const power_box = data.power_box;
 
     pcr_data.reactor_box.thermocouple_temp = reactor_box.thermocouple_temp;
     pcr_data.reactor_box.ambient_light = reactor_box.ambient_light;
@@ -115,5 +116,31 @@ export function register_pcr_data() {
     pcr_data.reactor_box.lane_3_sample_taken = reactor_box.lane_3_sample_taken;
     pcr_data.reactor_box.maintenance_mode = reactor_box.maintenance_mode;
     pcr_data.reactor_box.photobox_cable_control = reactor_box.photobox_cable_control;
+
+    pcr_data.power_box.abmient_temperature = power_box.ambient_temperature;
+    pcr_data.power_box.voltage_total = power_box.voltage_total;
+    pcr_data.power_box.current_total = power_box.current_total;
+    pcr_data.power_box.voltage_lane_1_front = power_box.voltage_lane_1_front;
+    pcr_data.power_box.voltage_lane_1_back = power_box.voltage_lane_1_back;
+    pcr_data.power_box.voltage_lane_2_front = power_box.voltage_lane_2_front;
+    pcr_data.power_box.voltage_lane_2_back = power_box.voltage_lane_2_back;
+    pcr_data.power_box.voltage_lane_3_front = power_box.voltage_lane_3_front;
+    pcr_data.power_box.voltage_lane_3_back = power_box.voltage_lane_3_back;
+    pcr_data.power_box.current_lane_1_front = power_box.current_lane_1_front;
+    pcr_data.power_box.current_lane_1_back = power_box.current_lane_1_back;
+    pcr_data.power_box.current_lane_2_front = power_box.current_lane_2_front;
+    pcr_data.power_box.current_lane_2_back = power_box.current_lane_2_back;
+    pcr_data.power_box.current_lane_3_front = power_box.current_lane_3_front;
+    pcr_data.power_box.current_lane_3_back = power_box.current_lane_3_back
+    pcr_data.power_box.powerbox_closed = power_box.powerbox_closed;
+    pcr_data.power_box.reactorbox_closed = power_box.reactorbox_closed;
+    pcr_data.power_box.led_installed_lane_1_front_and_vial = power_box.led_installed_lane_1_front_and_vial;
+    pcr_data.power_box.led_installed_lane_1_back = power_box.led_installed_lane_1_back;
+    pcr_data.power_box.led_installed_lane_2_front_and_vial = power_box.led_installed_lane_2_front_and_vial;
+    pcr_data.power_box.led_installed_lane_2_back = power_box.led_installed_lane_2_back;
+    pcr_data.power_box.led_installed_lane_3_front_and_vial = power_box.led_installed_lane_3_front_and_vial;
+    pcr_data.power_box.led_installed_lane_3_back = power_box.led_installed_lane_3_back;
+    pcr_data.power_box.water_detected = power_box.water_detected;
+
   });
 }
