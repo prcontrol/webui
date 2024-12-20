@@ -8,24 +8,25 @@
         <span class="status-label">POWER-BOX: {{  }}</span>
     </div>
     <div class="status-item">
-        <span class="status-label">TEMPERATURE: {{ statusData.ambient_temperature}}°C</span>
+        <span class="status-label">TEMPERATURE: {{ statusData.ambient_light }}°C</span>
     </div>
     <div class="status-item">
-        <span class="status-label">UV-INDEX: {{ statusData.uv_index}}</span>
+        <span class="status-label">UV-INDEX: {{ statusData.uv_index }}</span>
     </div>
   </header>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, } from 'vue';
-import { pcrData} from '@/dataStore';
+import { genPcrData } from '@/dataStore';
 import axios from 'axios';
 
 export default defineComponent({
   name: 'StatusHeader',
 
   setup(){
-    const statusData = pcrData.allData.reactor_box;
+    const reactorState = genPcrData();
+    const statusData = reactorState.reactor_box;
 
     const backendStatus = ref<number>(0);
 

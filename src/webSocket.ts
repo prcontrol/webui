@@ -1,26 +1,33 @@
+import io, { Socket } from "socket.io-client";
+import { wsUrl } from "./main";
+import { ReactorState } from "./dataStore";
 
-class WebSocketService {
-  private socket: WebSocket | null = null;
-  private listeners: Record<string, ((data: any)=>void)[]> = {};
+class WebSocketObservable<Data> {
+  private listeners: ((_:Data)=>void)[] = [];
 
-  public openWebSocket(url: string): void {
-    this.socket = new WebSocket(url);
-
-    this.socket.onmessage = (event: MessageEvent) => {
-      const message = JSON.parse(event.data);
-      const {event: key} = message;
-      if(this.listeners[key]){
-        this.listeners[key].forEach((listener) => listener(message));
-      }
-    };
+  public register(fn: (_:Data)=>void) {
+    this.listeners.push(fn);
   }
 
-  public subscribe(event: string, listener: (data:any) => void): void {
-    if(!this.listeners[event]){
-      this.listeners[event] = [];
-    }
-    this.listeners[event].push(listener);
+  public dispatch(data: Data): void {
+    this.listeners.forEach(fn => fn(data));
   }
+}
+
+export class WebSocketService {
+  private socket: Socket;
+  public observables = {
+    pcrdata: new WebSocketObservable<ReactorState>()
+  }
+
+  constructor(url: URL) {
+    this.socket = io(url);
+    this.socket.on("pcrdata", (message) => {
+      const state: ReactorState = message.data;
+      this.observables.pcrdata.dispatch(state);
+    });
+  }
+
 
   public close(): void {
     if(this.socket){
@@ -28,5 +35,3 @@ class WebSocketService {
     }
   }
 }
-const webSocket = new WebSocketService();
-export default webSocket;
