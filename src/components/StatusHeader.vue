@@ -1,45 +1,47 @@
 <template>
-<!--Status Anzeigen hardcodet zum Veranschaulichen: später Werte von Backend abrufen-->
+<!--get a specific valaue: pcr_data.reactor_box.ambient_light-->
   <header class="status-header">
     <div class="status-item">
         <span class="status-label">PHOTO-BOX: {{  backendStatus === 1 ? 'Online' : 'Offline'  }}</span>
     </div>
     <div class="status-item">
-        <span class="status-label">POWER-BOX: {{  }}</span>
+        <span class="status-label">POWER-BOX: {{ pcr_data.reactor_box.ambient_light }}</span>
     </div>
     <div class="status-item">
-        <span class="status-label">TEMPERATURE: {{ statusData.ambient_light }}°C</span>
+        <span class="status-label">TEMPERATURE: {{  }}°C</span>
     </div>
     <div class="status-item">
-        <span class="status-label">UV-INDEX: {{ statusData.uv_index }}</span>
+        <span class="status-label">UV-INDEX: {{ }}</span>
     </div>
   </header>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, } from 'vue';
-import { genPcrData } from '@/dataStore';
+import { defineComponent, ref } from 'vue';
+import { pcr_data, register_pcr_data } from '@/dataStore';
 import axios from 'axios';
+
 
 export default defineComponent({
   name: 'StatusHeader',
 
   setup(){
-    const reactorState = genPcrData();
-    const statusData = reactorState.reactor_box;
 
+    register_pcr_data()
+
+    //just to test connection (not real reactor state)
     const backendStatus = ref<number>(0);
-
     axios.get('/')
       .then(() => {
-        backendStatus.value = 1; // Backend erreichbar
+        backendStatus.value = 1;
       })
       .catch(() => {
-        backendStatus.value = 0; // Backend nicht erreichbar
+        backendStatus.value = 0;
       });
 
+
     return{
-      statusData,
+      pcr_data,
       backendStatus,
     };
   },

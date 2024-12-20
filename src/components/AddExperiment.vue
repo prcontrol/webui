@@ -26,7 +26,7 @@
         <select v-model="formData.config_file" id="configDropdown">
           <option value="" disabled selected>Chose hardware configuration ...</option>
           <option v-for="config in configs" :key="config.uid" :value="config.uid">
-            {{ config.name }}
+            {{ config.description }}
           </option>
       </select>
       </div>
@@ -147,8 +147,12 @@ export default defineComponent({
         closeForm();
       };
 
+      type configType = {
+        uid: number
+        description: string
+      }
       //handle config file fetching
-      const configs = ref<any[]>([]);
+      const configs = ref<configType[]>([]);
       const loadConfigFiles = async () => {
         const response = await axios.get('list_config');
         const data = response.data.results;

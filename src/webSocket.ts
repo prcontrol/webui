@@ -1,5 +1,4 @@
 import io, { Socket } from "socket.io-client";
-import { wsUrl } from "./main";
 import { ReactorState } from "./dataStore";
 
 class WebSocketObservable<Data> {
@@ -10,20 +9,21 @@ class WebSocketObservable<Data> {
   }
 
   public dispatch(data: Data): void {
-    this.listeners.forEach(fn => fn(data));
+    console.log("Dispatching", data);
+    this.listeners.forEach((fn => fn(data)));
   }
 }
 
 export class WebSocketService {
   private socket: Socket;
   public observables = {
-    pcrdata: new WebSocketObservable<ReactorState>()
+    pcrdata: new WebSocketObservable<ReactorState>(),
   }
 
   constructor(url: URL) {
     this.socket = io(url);
-    this.socket.on("pcrdata", (message) => {
-      const state: ReactorState = message.data;
+    this.socket.on("pcrdata", async (message) => {
+      const state: ReactorState = JSON.parse(message.data); // Parse the JSON-Strings to a JavaScript-Object
       this.observables.pcrdata.dispatch(state);
     });
   }
