@@ -15,10 +15,10 @@
       </div>
       <div class="input-container">
         <label for="tinkerforge-bricklets">Select Tinkerforge bricklet:</label>
-        <select v-model="formData.bricklet">
+        <select v-model="formData.tinkerforge_bricklets">
         <option value="" disabled selected>Chose bricklet ...</option>
          <option v-for="bricklet in bricklets" :key="bricklet.uid" :value="bricklet.uid">
-          {{ bricklet.name }}
+          {{ bricklet.description }}
         </option>
        </select>
       </div>
@@ -132,7 +132,12 @@ export default defineComponent({
       };
 
       //fetch the bricklets from backend
-      const bricklets = ref<unknown[]>([]);
+      type brickletType = {
+        uid: number
+        description: string
+      }
+
+      const bricklets = ref<brickletType[]>([]);
       const loadBricklets = async () => {
         const response = await axios.get('list_bricklet');
         const data = response.data.result;
