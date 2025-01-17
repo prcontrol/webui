@@ -10,7 +10,7 @@
         <input tid="uid" v-model="formData.uid" type="number" required >
       </div>
       <div class="input-container">
-        <label for="name">Unique Identifier:</label>
+        <label for="name">Name:</label>
         <input tid="name" v-model="formData.name" type="text" required >
       </div>
       <div class="input-container">
@@ -113,10 +113,9 @@ export default defineComponent({
         led_back_intensity: '',
         led_back_distance_to_vial: '',
         led_back_exposure_time: '',
-        time_points_sample_taking: '',
+        time_points_sample_taking: '', //list of integers
         position_thermocouple: '',
       });
-
 
 
       const closeForm = () => {
@@ -128,6 +127,8 @@ export default defineComponent({
          alert("Missing required fields 'Unique Identifier' and 'Lab Journal'");
          return;
         }
+
+        formData.value.time_points_sample_taking = JSON.parse(formData.value.time_points_sample_taking);
 
         const jsonFile = new Blob([JSON.stringify(formData.value)], {
            type: 'application/json',

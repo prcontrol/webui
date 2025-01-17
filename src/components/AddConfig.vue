@@ -10,11 +10,11 @@
         <input tid="uid" v-model="formData.uid" type="number" required >
       </div>
       <div class="input-container">
-        <label for="name">Unique Identifier:</label>
+        <label for="name">Name:</label>
         <input tid="name" v-model="formData.name" type="text" required >
       </div>
       <div class="input-container">
-        <label for="tinkerforge-bricklets">Select Tinkerforge bricklet:</label>
+       <label for="tinkerforge-bricklets">Select Tinkerforge bricklet:</label>
         <select v-model="formData.tinkerforge_bricklets">
         <option value="" disabled selected>Chose bricklet ...</option>
          <option v-for="bricklet in bricklets" :key="bricklet.uid" :value="bricklet.uid">
@@ -44,10 +44,6 @@
       <div class="input-container">
         <label for="default-pwm-channels">Default PWM channels:</label>
         <input id="default_pwm_channels" v-model="formData.default_pwm_channels" type="text" required >
-      </div>
-      <div class="input-container">
-        <label for="configuration-io-channels">Configuration IO channels (I/O-16 Bricklet):</label>
-        <input id="configuration_io_channels" v-model="formData.configuration_io_channels" type="text" required >
       </div>
       <div class="input-container">
         <label for="default-temperature-threshold">Default temperature threshold:</label>
@@ -88,13 +84,12 @@ export default defineComponent({
       const formData = ref({
         uid: '',
         name: '',
-        tinkerforge_bricklets: '', //list of tinkerforge bricklets returns the uid
+        tinkerforge_bricklets: '', //list of tinkerforge bricklets
         software_version: '',
         date: '',
         default_distance_led_vial: '',
         default_position_thermocouple: '',
         default_pwm_channels: '', //list of floats
-        configuration_io_channels: '',
         default_temperature_threshold: '',
         default_uv_threshold: '',
         default_sensor_query_interval: '',
@@ -111,6 +106,8 @@ export default defineComponent({
          alert("Missing required fields 'Date' and 'Default distance led to vial'.");
          return;
         }
+
+        formData.value.default_pwm_channels = JSON.parse(formData.value.default_pwm_channels);
 
         const jsonFile = new Blob([JSON.stringify(formData.value)], {
            type: 'application/json',
