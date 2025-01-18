@@ -164,11 +164,8 @@ export default defineComponent({
 }
 
 .close-button {
-  display: flex;
+  cursor: pointer;
   justify-content: center;
   margin-top: 40px;
-  background-color: white;
-  border: none;
-  padding-top: 20px;
 }
 </style>
