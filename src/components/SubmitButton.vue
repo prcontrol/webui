@@ -77,8 +77,13 @@ export default defineComponent({
             },
           });
           console.log('Upload successful:', response.data);
-        } catch (error: any) {
-          console.error('Error uploading file:', error.message);
+        } catch (error) {
+          if (axios.isAxiosError(error)){
+            console.error(error.message)
+          }
+          else{
+            console.error(error)
+          }
         } finally {
           // Reset selectedForm and close the dropdown
           selectedForm.value = '';
