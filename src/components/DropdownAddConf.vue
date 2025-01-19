@@ -130,12 +130,8 @@
   z-index: 10;
 }
 .close-button{
-  display: flex;
   justify-content: center;
   margin-top: 40px;
-  background-color: white;
-  border: none;
-  padding-top: 20px;
 }
 </style>
 

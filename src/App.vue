@@ -8,6 +8,7 @@
           <div class="align-file-container">
             <DropdownAddConf/>
             <SubmitButton/>
+            <ExportButton/>
           </div>
         </div>
       </div>
@@ -27,6 +28,7 @@ import StatusHeader from './components/StatusHeader.vue';
 import SubmitButton from './components/SubmitButton.vue';
 import ReactorLane from './components/ReactorLane.vue';
 import DropdownAddConf from './components/DropdownAddConf.vue';
+import ExportButton from './components/ExportButton.vue';
 
 export default defineComponent({
   name: 'App',
@@ -35,6 +37,7 @@ export default defineComponent({
     SubmitButton,
     ReactorLane,
     DropdownAddConf,
+    ExportButton,
   },
 });
 </script>
