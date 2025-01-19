@@ -6,9 +6,9 @@
         <h1 class="headline">Reactor Controller</h1>
         <div class="file-container">
           <div class="align-file-container">
-            <ExportButton />
-            <DropdownAddConf />
-            <SubmitButton />
+            <DropdownAddConf/>
+            <SubmitButton/>
+            <ExportButton/>
           </div>
         </div>
       </div>
