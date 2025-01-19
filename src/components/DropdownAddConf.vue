@@ -50,6 +50,7 @@
 
       const closeDropdown = () => {
         showDropdown.value = false;
+        //selectedForm.value = '';
 
       };
       const closeForm = () => {

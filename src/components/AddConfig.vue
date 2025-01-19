@@ -7,18 +7,18 @@
       <div class="left-content">
       <div class="input-container">
         <label for="laufende-nr">Unique Identifier:</label>
-        <input tid="uid" v-model="formData.uid" type="number" required >
+        <input tid="uid" v-model="formData.uid" :placeholder="'int'" type="number" required >
       </div>
       <div class="input-container">
         <label for="name">Name:</label>
         <input tid="name" v-model="formData.name" type="text" required >
       </div>
       <div class="input-container">
-       <label for="tinkerforge-bricklets">Select Tinkerforge bricklet:</label>
-        <select v-model="formData.tinkerforge_bricklets">
+       <label for="tinkerforge-bricklets">Select Tinkerforge bricklets:</label>
+        <select v-model="formData.tinkerforge_bricklets" multiple>
         <option value="" disabled selected>Chose bricklet ...</option>
          <option v-for="bricklet in bricklets" :key="bricklet.uid" :value="bricklet.uid">
-          {{ bricklet.description }}
+          {{bricklet.uid}} - {{ bricklet.description }}
         </option>
        </select>
       </div>
@@ -32,7 +32,7 @@
       </div>
       <div class="input-container">
         <label for="default-distance-led-vial">Default distance led to vial (cm):</label>
-        <input id="default_distance_led_vial" v-model="formData.default_distance_led_vial" type="number" required >
+        <input id="default_distance_led_vial" v-model="formData.default_distance_led_vial" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
         <label for="default-position-thermocouple">Default position of thermocouple:</label>
@@ -43,23 +43,23 @@
       <div class="right-content">
       <div class="input-container">
         <label for="default-pwm-channels">Default PWM channels:</label>
-        <input id="default_pwm_channels" v-model="formData.default_pwm_channels" type="text" required >
+        <input id="default_pwm_channels" v-model="formData.default_pwm_channels" :placeholder="'float array: [1.2, 2.0, ...]'" type="text" required >
       </div>
       <div class="input-container">
         <label for="default-temperature-threshold">Default temperature threshold:</label>
-        <input id="default_temperature_threshold" v-model="formData.default_temperature_threshold" type="number" required >
+        <input id="default_temperature_threshold" v-model="formData.default_temperature_threshold" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
         <label for="default-uv-threshold">Default UV threshold:</label>
-        <input id="default_uv_threshold" v-model="formData.default_uv_threshold" type="number" required >
+        <input id="default_uv_threshold" v-model="formData.default_uv_threshold" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
         <label for="default-sensor-query-interval">Default sensor query interval (sec):</label>
-        <input id="default_sensor_query_interval" v-model="formData.default_sensor_query_interval" type="number" required >
+        <input id="default_sensor_query_interval" v-model="formData.default_sensor_query_interval" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
         <label for="default-reaction-vessel-volume">Default reaction vessel volume:</label>
-        <input id="default_reaction_vessel_volume" v-model="formData.default_reaction_vessel_volume" type="number" required>
+        <input id="default_reaction_vessel_volume" v-model="formData.default_reaction_vessel_volume" :placeholder="'float'" type="number" required>
       </div>
       </div>
       </div>
@@ -84,12 +84,12 @@ export default defineComponent({
       const formData = ref({
         uid: '',
         name: '',
-        tinkerforge_bricklets: '', //list of tinkerforge bricklets
+        tinkerforge_bricklets: [] as number[], //list of tinkerforge bricklets
         software_version: '',
         date: '',
         default_distance_led_vial: '',
         default_position_thermocouple: '',
-        default_pwm_channels: '', //list of floats
+        default_pwm_channels: '',
         default_temperature_threshold: '',
         default_uv_threshold: '',
         default_sensor_query_interval: '',
@@ -106,6 +106,21 @@ export default defineComponent({
          alert("Missing required fields 'Date' and 'Default distance led to vial'.");
          return;
         }
+        if (formData.value.tinkerforge_bricklets.length === 0) {
+        alert('Select at least one Tinkerforge bricklet.');
+        return;
+        }
+        //fetch bricklet data for selected uid/s
+        const fetchBrickletData = formData.value.tinkerforge_bricklets.map(
+          async (uid) => {
+            const response = await axios.get('bricklet', {
+              params: {uid},
+            });
+            return response.data;
+          }
+        );
+        const brickletData = await Promise.all(fetchBrickletData);
+        formData.value.tinkerforge_bricklets = brickletData;
 
         formData.value.default_pwm_channels = JSON.parse(formData.value.default_pwm_channels);
 
@@ -114,7 +129,7 @@ export default defineComponent({
         });
 
         const uploadJSON = new FormData();
-        uploadJSON.append('file', jsonFile, "formData.json");
+        uploadJSON.append('json_file', jsonFile, "formData.json");
         //Console output of JSON data
         console.log("JSON-Inhalt:", JSON.stringify(formData.value, null, 2));
         axios.post('config', uploadJSON, {
@@ -137,8 +152,9 @@ export default defineComponent({
       const bricklets = ref<brickletType[]>([]);
       const loadBricklets = async () => {
         const response = await axios.get('list_bricklet');
-        const data = response.data.result;
+        const data = response.data.results;
         bricklets.value = data;
+        console.log('Bricklets geladen:', data);
       };
 
       //close form if ESC key pressed
