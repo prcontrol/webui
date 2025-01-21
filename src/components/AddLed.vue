@@ -8,23 +8,27 @@
         <div class="left-content">
         <div class="form-field">
           <label for="uid">Unique Identifier:</label>
-          <input id="uid" v-model="formData.uid" type="number" required />
+          <input id="uid" v-model="formData.uid" :placeholder="'int'" type="number" required />
+        </div>
+        <div class="form-field">
+          <label for="name">Name:</label>
+          <input id="name" v-model="formData.name" type="text" required />
         </div>
         <div class="form-field">
           <label for="fwhm">FWHM (full width at half maximum):</label>
-          <input id="fwhm" v-model="formData.fwhm" type="number" required />
+          <input id="fwhm" v-model="formData.fwhm" :placeholder="'int'" type="number" required />
         </div>
         <div class="form-field">
           <label for="max-of-emission">Maximum of emission:</label>
-          <input id="max_of_emission" v-model="formData.max_of_emission" type="number" required />
+          <input id="max_of_emission" v-model="formData.max_of_emission" :placeholder="'int'" type="number" required />
         </div>
         <div class="form-field">
           <label for="min-wavelength">Minimal wavelength:</label>
-          <input id="min_wavelength" v-model="formData.min_wavelength" type="number" required />
+          <input id="min_wavelength" v-model="formData.min_wavelength" :placeholder="'int'" type="number" required />
         </div>
         <div class="form-field">
           <label for="max-wavelength">Maximum wavelength:</label>
-          <input id="max_wavelength" v-model="formData.max_wavelength" type="number" required />
+          <input id="max_wavelength" v-model="formData.max_wavelength" :placeholder="'int'" type="number" required />
         </div>
         <div class="form-field">
           <label for="color">Color:</label>
@@ -32,18 +36,18 @@
         </div>
         <div class="form-field">
           <label for="max-current">Maximum current (mA):</label>
-          <input id="max_current" v-model="formData.max_current" type="text" required />
+          <input id="max_current" v-model="formData.max_current" :placeholder="'int'" type="text" required />
         </div>
         </div>
 
         <div class="right-content">
         <div class="form-field">
           <label for="manufacturer-id">Manufacturer ID:</label>
-          <input id="manufacturer_id" v-model="formData.manufacturer_id" type="number" required />
+          <input id="manufacturer_id" v-model="formData.manufacturer_id" :placeholder="'int'" type="number" required />
         </div>
         <div class="form-field">
           <label for="order_id">Order ID:</label>
-          <input id="order_id" v-model="formData.order_id" type="number" required />
+          <input id="order_id" v-model="formData.order_id" :placeholder="'int'" type="number" required />
         </div>
         <div class="form-field">
           <label for="date-soldering">Date soldering:</label>
@@ -55,11 +59,11 @@
         </div>
         <div class="form-field">
           <label for="operating-time">Operating time (h):</label>
-          <input id="operating_time" v-model="formData.operating_time" type="number" required />
+          <input id="operating_time" v-model="formData.operating_time" :placeholder="'float'" type="number" required />
         </div>
         <div class="form-field">
           <label for="defect">Defect:</label>
-          <input id="defect" v-model="formData.defect" type="text" :placeholder="'false'" required />
+          <input id="defect" v-model="formData.defect" type="text" :placeholder="'true or false'" required />
         </div>
         <div class="form-field">
           <label for="emission-spectrum">Emission spectrum:</label>
@@ -92,6 +96,7 @@ export default defineComponent({
   setup(_,{emit}) {
     const formData = ref({
       uid: '',
+      name: '',
       fwhm: '',
       max_of_emission: '',
       min_wavelength: '',
@@ -113,6 +118,7 @@ export default defineComponent({
       emit('close-form');
     };
 
+
     // Handle form submission and create a JSON file
     const submitForm = () => {
       if (!formData.value.max_wavelength) {
@@ -120,12 +126,14 @@ export default defineComponent({
          return;
         }
 
+      formData.value.emission_spectrum = JSON.parse(formData.value.emission_spectrum);
+
       const jsonFile = new Blob([JSON.stringify(formData.value)], {
           type: 'application/json',
         });
 
       const uploadJSON = new FormData();
-      uploadJSON.append('file', jsonFile, 'formData.json');
+      uploadJSON.append('json_file', jsonFile, 'formData.json');
 
       axios.post('led', uploadJSON, {
         headers: {
