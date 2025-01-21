@@ -13,7 +13,7 @@ type ReactorBoxState = {
   lane_2_sample_taken: boolean
   lane_3_sample_taken: boolean
   maintenance_mode: boolean
-  photobox_cable_control: boolean
+  cable_control: boolean
 }
 
 type PowerBoxState = {
@@ -42,13 +42,39 @@ type PowerBoxState = {
   led_installed_lane_3_front_and_vial: boolean
   led_installed_lane_3_back: boolean
   water_detected: boolean
+  cable_control: boolean
+}
+
+type ControllerState = {
+  reactor_box_connected: boolean
+  power_box_connected: boolean
+  sample_lane_1: boolean
+  sample_lane_2: boolean
+  sample_lane_3: boolean
+  exp_running_lane_1: boolean
+  exp_running_lane_2: boolean
+  exp_running_lane_3: boolean
+  uv_installed: boolean
+  ambient_temp_status: ThresholdStatus
+  IR_temp_1_threshold_status: ThresholdStatus
+  IR_temp_2_threshold_status: ThresholdStatus
+  IR_temp_3_threshold_status: ThresholdStatus
+  thermocouple_theshold_status: ThresholdStatus
+}
+
+export enum ThresholdStatus {
+  OK = 0,
+  EXCEEDED = 1,
+  OK_AGAIN = 2,
+  ABORT = 3
 }
 
 export type ReactorState = {
   reactor_box: ReactorBoxState;
   power_box: PowerBoxState;
+  controller: ControllerState;
 }
-//all set to 0 and false for demonstration purpose
+
 export const pcr_data = reactive(
   {
     reactor_box: {
@@ -63,7 +89,7 @@ export const pcr_data = reactive(
       lane_2_sample_taken: false,
       lane_3_sample_taken: false,
       maintenance_mode: false,
-      photobox_cable_control: false,
+      cable_control: false,
     },
 
     power_box: {
@@ -92,55 +118,35 @@ export const pcr_data = reactive(
       led_installed_lane_3_front_and_vial: false,
       led_installed_lane_3_back: false,
       water_detected: false,
+      cable_control: false,
+    },
+
+    controller: {
+      reactor_box_connected: false,
+      power_box_connected: false,
+      sample_lane_1: false,
+      sample_lane_2: false,
+      sample_lane_3: false,
+      exp_running_lane_1: false,
+      exp_running_lane_2: false,
+      exp_running_lane_3: false,
+      uv_installed: false,
+      ambient_temp_status: ThresholdStatus.OK,
+      IR_temp_1_threshold_status: ThresholdStatus.OK,
+      IR_temp_2_threshold_status: ThresholdStatus.OK,
+      IR_temp_3_threshold_status: ThresholdStatus.OK,
+      thermocouple_theshold_status: ThresholdStatus.OK,
     }
   });
 
 export function register_pcr_data() {
-  ws_observables.pcrdata.register((data) => {
+  ws_observables.pcrdata.register((data: Partial<ReactorState>) => {
      // Logge die gesamte empfangene Datenstruktur zur Überprüfung
     console.log("UPDATE empfangen:", JSON.stringify(data, null, 2));
 
-
-    const reactor_box = data.reactor_box;
-    const power_box = data.power_box;
-
-    pcr_data.reactor_box.thermocouple_temp = reactor_box.thermocouple_temp;
-    pcr_data.reactor_box.ambient_light = reactor_box.ambient_light;
-    pcr_data.reactor_box.ambient_temperature = reactor_box.ambient_temperature;
-    pcr_data.reactor_box.lane_1_ir_temp = reactor_box.lane_1_ir_temp;
-    pcr_data.reactor_box.lane_2_ir_temp = reactor_box.lane_2_ir_temp;
-    pcr_data.reactor_box.lane_3_ir_temp = reactor_box.lane_3_ir_temp;
-    pcr_data.reactor_box.uv_index = reactor_box.uv_index;
-    pcr_data.reactor_box.lane_1_sample_taken = reactor_box.lane_1_sample_taken;
-    pcr_data.reactor_box.lane_2_sample_taken = reactor_box.lane_2_sample_taken;
-    pcr_data.reactor_box.lane_3_sample_taken = reactor_box.lane_3_sample_taken;
-    pcr_data.reactor_box.maintenance_mode = reactor_box.maintenance_mode;
-    pcr_data.reactor_box.photobox_cable_control = reactor_box.photobox_cable_control;
-
-    pcr_data.power_box.abmient_temperature = power_box.ambient_temperature;
-    pcr_data.power_box.voltage_total = power_box.voltage_total;
-    pcr_data.power_box.current_total = power_box.current_total;
-    pcr_data.power_box.voltage_lane_1_front = power_box.voltage_lane_1_front;
-    pcr_data.power_box.voltage_lane_1_back = power_box.voltage_lane_1_back;
-    pcr_data.power_box.voltage_lane_2_front = power_box.voltage_lane_2_front;
-    pcr_data.power_box.voltage_lane_2_back = power_box.voltage_lane_2_back;
-    pcr_data.power_box.voltage_lane_3_front = power_box.voltage_lane_3_front;
-    pcr_data.power_box.voltage_lane_3_back = power_box.voltage_lane_3_back;
-    pcr_data.power_box.current_lane_1_front = power_box.current_lane_1_front;
-    pcr_data.power_box.current_lane_1_back = power_box.current_lane_1_back;
-    pcr_data.power_box.current_lane_2_front = power_box.current_lane_2_front;
-    pcr_data.power_box.current_lane_2_back = power_box.current_lane_2_back;
-    pcr_data.power_box.current_lane_3_front = power_box.current_lane_3_front;
-    pcr_data.power_box.current_lane_3_back = power_box.current_lane_3_back
-    pcr_data.power_box.powerbox_closed = power_box.powerbox_closed;
-    pcr_data.power_box.reactorbox_closed = power_box.reactorbox_closed;
-    pcr_data.power_box.led_installed_lane_1_front_and_vial = power_box.led_installed_lane_1_front_and_vial;
-    pcr_data.power_box.led_installed_lane_1_back = power_box.led_installed_lane_1_back;
-    pcr_data.power_box.led_installed_lane_2_front_and_vial = power_box.led_installed_lane_2_front_and_vial;
-    pcr_data.power_box.led_installed_lane_2_back = power_box.led_installed_lane_2_back;
-    pcr_data.power_box.led_installed_lane_3_front_and_vial = power_box.led_installed_lane_3_front_and_vial;
-    pcr_data.power_box.led_installed_lane_3_back = power_box.led_installed_lane_3_back;
-    pcr_data.power_box.water_detected = power_box.water_detected;
+    Object.assign(pcr_data.reactor_box, data.reactor_box);
+    Object.assign(pcr_data.power_box, data.power_box);
+    Object.assign(pcr_data.controller, data.controller);
 
   });
 }
