@@ -62,7 +62,7 @@ export default defineComponent({
           sampleName: 'Sample A',
           sampleVolume: 5,
           sampleTemp: 35.5,
-          targetTemp: 40,
+          targetTemp: 35.5,
           sampleError: 'None',
           ledType2: 'Luxen CZ 530 nm',
           ledColor2: 'green',
