@@ -40,7 +40,7 @@ export default defineComponent({
     SubmitButton,
     ReactorLane,
     DropdownAddConf,
-    ExportButton,
+    ExportButton
   },
   data() {
     return {
