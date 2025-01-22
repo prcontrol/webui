@@ -50,12 +50,13 @@
         </div>
         <div>
           {{ data.sampleVolume }} mL {{ data.sampleName }}
-          <div class="temperature" :class="{ error: data.sampleError !== 'None' }">
+          <div class="temperature" :class="{ error: sampleError !== 'None' }">
             {{ data.sampleTemp }} °C
           </div>
           <div>Corr. Temp.: {{ data.targetTemp }} °C</div>
-          <div v-if="data.sampleError !== 'None'" class="sample-error">
-            {{ data.sampleError }}
+          <!-- Display sample error if temperature doesn't match -->
+          <div v-if="sampleError !== 'None'" class="sample-error">
+            {{ sampleError }}
           </div>
         </div>
       </div>
@@ -80,7 +81,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, onMounted, computed } from 'vue';
+import { defineComponent, PropType, ref, onMounted, computed, Ref } from 'vue';
 
 export default defineComponent({
   name: 'ReactorLane',
@@ -144,7 +145,11 @@ export default defineComponent({
     const remainingTimeExperiment = ref(formatTime(props.data.experimentTime * 60));
     const progressBarWidthExp = ref('100%');
 
-    const startCountdown = (totalMinutes: number, remainingTime: any, progressBarWidth: any) => {
+    const startCountdown = (
+      totalMinutes: number,
+      remainingTime: Ref<string>,
+      progressBarWidth: Ref<string>
+    ) => {
       const totalSeconds = totalMinutes * 60;
       let currentSeconds = totalSeconds;
 
@@ -169,12 +174,27 @@ export default defineComponent({
       }
     });
 
+    // Computed property to check if the sample temperature matches the target temperature
+    const sampleError = computed(() => {
+      const sampleTemp = props.data.sampleTemp;
+      const targetTemp = props.data.targetTemp;
+
+      if (sampleTemp > targetTemp) {
+        return 'Overheated!';
+      } else if (sampleTemp < targetTemp) {
+        return 'Too Cold!';
+      } else {
+        return 'None';
+      }
+    });
+
     return {
       remainingTimeSample,
       progressBarWidthSample,
       remainingTimeExperiment,
       progressBarWidthExp,
       isTurnedOff,
+      sampleError,
     };
   },
 });
@@ -282,5 +302,11 @@ export default defineComponent({
   width: 100%;
   text-align: left; /* Align text to the left */
   padding-left: 12px; /* Add some padding to the left */
+}
+
+.sample-error {
+  font-size: 12px;
+  color: red;
+  margin-top: 5px;
 }
 </style>
