@@ -28,6 +28,7 @@
       type="file"
       ref="fileInput"
       class="hidden-file-input"
+      accept=".json"
       @change="handleFileUpload"
     />
   </div>
