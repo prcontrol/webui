@@ -80,6 +80,7 @@ export default defineComponent({
       selectedFiles.value = [];
       showFileSelection.value = false;
     };
+
     const closeFileList = () => {
       showFileSelection.value = false;
       showDropdown.value = true;  // Show the dropdown again
@@ -106,7 +107,7 @@ export default defineComponent({
         alert("No file selected");
         return;
       }
-      //get the file/s for thefrom backend
+      //get the file/s for given uid from backend
       selectedFiles.value.forEach(async (uid) => {
         const response = await axios.get(`${selectedForm.value}`, {
           params: {uid},
