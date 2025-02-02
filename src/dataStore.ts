@@ -134,7 +134,7 @@ export function register_pcr_data() {
      // Logge die gesamte empfangene Datenstruktur zur Überprüfung
     console.log("UPDATE empfangen:", JSON.stringify(data, null, 2));
 
-    Object.assign(pcr_data);
+    Object.assign(pcr_data, data);
 
   });
 }
