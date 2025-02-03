@@ -1,22 +1,15 @@
 <template>
   <div class="lane-container">
-    <!-- Lane Number in the Upper Left Corner -->
     <div class="lane-number">Lane {{ laneNumber }}</div>
 
-    <!-- If the lane is turned off, display a message -->
-    <div v-if="isTurnedOff" class="turned-off-message">
-      Turned Off
-    </div>
+    <div v-if="isTurnedOff" class="turned-off-message">Turned Off</div>
 
-    <!-- If the lane is active, display the data -->
     <template v-else>
-      <!-- Header for LED 1 -->
       <div class="header">
         <div>{{ data.voltage1 }} V</div>
         <div>{{ data.current1 }} mA ({{ data.currentPercent1 }} %)</div>
       </div>
 
-      <!-- LED 1 Information -->
       <div class="led-info">
         <div>{{ data.distance1 }} cm</div>
         <div class="temperature" :class="{ error: data.error1 !== 'None' }">
@@ -26,15 +19,21 @@
         <div>{{ data.ledType1 }} ({{ data.ledColor1 }})</div>
       </div>
 
-      <!-- Sample Information -->
       <div class="sample-info">
         <div class="sample-header">
           <span>Sample in</span>
           <div class="progress-bar-container">
-            <div class="progress-bar">
-              <div class="progress" :style="{ width: progressBarWidthSample }">
-                <span class="progress-text">{{ remainingTimeSample }}</span>
+            <div v-if="currentSampleIndex < data.sampleTime.length || isLastSampleVisible" class="progress-bar-row">
+              <div class="progress-bar">
+                <div class="progress" :style="{ width: progressBarWidthSample }">
+                  <span class="progress-text">{{ remainingTimeSample }}</span>
+                </div>
               </div>
+              <button
+                class="confirm-button"
+                v-if="remainingTimeSample === 'Ready' && !isLastSampleVisible"
+                @click="confirmSample"
+              >✔️</button>
             </div>
           </div>
         </div>
@@ -54,14 +53,10 @@
             {{ data.sampleTemp }} °C
           </div>
           <div>Corr. Temp.: {{ data.targetTemp }} °C</div>
-          <!-- Display sample error if temperature doesn't match -->
-          <div v-if="sampleError !== 'None'" class="sample-error">
-            {{ sampleError }}
-          </div>
+          <div v-if="sampleError !== 'None'" class="sample-error">{{ sampleError }}</div>
         </div>
       </div>
 
-      <!-- LED 2 Information -->
       <div class="led-info">
         <div>{{ data.ledType2 }} ({{ data.ledColor2 }})</div>
         <div v-if="data.error2 !== 'None'" class="error-message">{{ data.error2 }}</div>
@@ -71,7 +66,6 @@
         <div>{{ data.distance2 }} cm</div>
       </div>
 
-      <!-- Footer for LED 2 -->
       <div class="footer">
         <div>{{ data.voltage2 }} V</div>
         <div>{{ data.current2 }} mA ({{ data.currentPercent2 }} %)</div>
@@ -81,15 +75,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, onMounted, computed, Ref } from 'vue';
+import { defineComponent, PropType, ref, onMounted, computed } from 'vue';
 
 export default defineComponent({
   name: 'ReactorLane',
   props: {
-    laneNumber: {
-      type: Number,
-      required: true,
-    },
+    laneNumber: { type: Number, required: true },
     data: {
       type: Object as PropType<{
         voltage1: number;
@@ -100,8 +91,7 @@ export default defineComponent({
         error1: string;
         ledType1: string;
         ledColor1: string;
-        sampleStatus: string;
-        sampleTime: number;
+        sampleTime: number[];
         experimentTime: number;
         sampleName: string;
         sampleVolume: number;
@@ -121,7 +111,6 @@ export default defineComponent({
     },
   },
   setup(props) {
-    // Check if the lane is turned off (all critical values are 0 or empty)
     const isTurnedOff = computed(() => {
       return (
         props.data.voltage1 === 0 &&
@@ -134,58 +123,82 @@ export default defineComponent({
     });
 
     const formatTime = (seconds: number) => {
-      const h = Math.floor(seconds / 3600);
-      const m = Math.floor((seconds % 3600) / 60);
+      const m = Math.floor(seconds / 60);
       const s = seconds % 60;
-      return `${h}h ${m}m ${s}s`;
+      return `${m}m ${s}s`;
     };
 
-    const remainingTimeSample = ref(formatTime(props.data.sampleTime * 60));
-    const progressBarWidthSample = ref('100%');
-    const remainingTimeExperiment = ref(formatTime(props.data.experimentTime * 60));
-    const progressBarWidthExp = ref('100%');
+    const remainingTimeSample = ref<string>('');
+    const progressBarWidthSample = ref<string>('100%');
+    const currentSampleIndex = ref<number>(0);
+    const isLastSampleVisible = ref<boolean>(false);
+    let sampleInterval: ReturnType<typeof setInterval> | null = null;
 
-    const startCountdown = (
-      totalMinutes: number,
-      remainingTime: Ref<string>,
-      progressBarWidth: Ref<string>
-    ) => {
+    const startSampleCountdown = (index: number) => {
+      if (index >= props.data.sampleTime.length) return;
+
+      const totalSeconds = props.data.sampleTime[index] * 60;
+      let currentSeconds = totalSeconds;
+
+      remainingTimeSample.value = formatTime(currentSeconds);
+      progressBarWidthSample.value = '100%';
+
+      sampleInterval = setInterval(() => {
+        if (currentSeconds > 0) {
+          currentSeconds -= 1;
+          remainingTimeSample.value = formatTime(currentSeconds);
+          progressBarWidthSample.value = `${(100 * (totalSeconds - currentSeconds)) / totalSeconds}%`;
+        } else {
+          clearInterval(sampleInterval!);
+          remainingTimeSample.value = 'Ready';
+          if (index === props.data.sampleTime.length - 1) {
+            isLastSampleVisible.value = true; // Keep the last progress bar visible
+          }
+        }
+      }, 1000);
+    };
+
+    const confirmSample = () => {
+      if (sampleInterval) clearInterval(sampleInterval);
+      if (currentSampleIndex.value < props.data.sampleTime.length - 1) {
+        currentSampleIndex.value++;
+        startSampleCountdown(currentSampleIndex.value);
+      } else {
+        isLastSampleVisible.value = true; // Keep last progress bar visible
+      }
+    };
+
+    const remainingTimeExperiment = ref<string>('');
+    const progressBarWidthExp = ref<string>('100%');
+
+    const startExperimentCountdown = (totalMinutes: number) => {
       const totalSeconds = totalMinutes * 60;
       let currentSeconds = totalSeconds;
 
       const interval = setInterval(() => {
         if (currentSeconds > 0) {
           currentSeconds -= 1;
-          remainingTime.value = formatTime(currentSeconds);
-          progressBarWidth.value = `${100 - (currentSeconds / totalSeconds) * 100}%`;
+          remainingTimeExperiment.value = formatTime(currentSeconds);
+          progressBarWidthExp.value = `${(100 * (totalSeconds - currentSeconds)) / totalSeconds}%`;
         } else {
           clearInterval(interval);
-          remainingTime.value = 'Ready';
+          remainingTimeExperiment.value = 'finished';
         }
       }, 1000);
     };
 
     onMounted(() => {
-      if (props.data.sampleTime > 0) {
-        startCountdown(props.data.sampleTime, remainingTimeSample, progressBarWidthSample);
+      if (props.data.sampleTime.length > 0) {
+        startSampleCountdown(0);
       }
       if (props.data.experimentTime > 0) {
-        startCountdown(props.data.experimentTime, remainingTimeExperiment, progressBarWidthExp);
+        startExperimentCountdown(props.data.experimentTime);
       }
     });
 
-    // Computed property to check if the sample temperature matches the target temperature
     const sampleError = computed(() => {
-      const sampleTemp = props.data.sampleTemp;
-      const targetTemp = props.data.targetTemp;
-
-      if (sampleTemp > targetTemp) {
-        return 'Overheated!';
-      } else if (sampleTemp < targetTemp) {
-        return 'Too Cold!';
-      } else {
-        return 'None';
-      }
+      const { sampleTemp, targetTemp } = props.data;
+      return sampleTemp > targetTemp ? 'Vial Overheated!' : sampleTemp < targetTemp ? 'Too Cold!' : 'None';
     });
 
     return {
@@ -195,11 +208,13 @@ export default defineComponent({
       progressBarWidthExp,
       isTurnedOff,
       sampleError,
+      confirmSample,
+      currentSampleIndex,
+      isLastSampleVisible,
     };
   },
 });
 </script>
-
 <style scoped>
 .lane-container {
   width: 13cm;
@@ -213,13 +228,15 @@ export default defineComponent({
   padding: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   gap: 10px;
-  position: relative; /* Required for absolute positioning of lane number */
+  position: relative;
+  /* Required for absolute positioning of lane number */
 }
 
 .lane-number {
   position: absolute;
   top: 10px;
-  left: 10px; /* Positioned in the upper left corner */
+  left: 10px;
+  /* Positioned in the upper left corner */
   font-size: 16px;
   font-weight: bold;
   color: #333;
@@ -229,7 +246,8 @@ export default defineComponent({
   font-size: 20px;
   font-weight: bold;
   color: #666;
-  margin-top: 50px; /* Center the message vertically */
+  margin-top: 50px;
+  /* Center the message vertically */
 }
 
 .header,
@@ -263,7 +281,8 @@ export default defineComponent({
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px; /* Added space between lines */
+  margin-bottom: 10px;
+  /* Added space between lines */
 }
 
 .progress-bar-container {
@@ -289,9 +308,12 @@ export default defineComponent({
   left: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Align text to the left */
-  text-align: left; /* Align text to the left */
-  padding-left: 12px; /* Add some padding to the left */
+  justify-content: flex-start;
+  /* Align text to the left */
+  text-align: left;
+  /* Align text to the left */
+  padding-left: 12px;
+  /* Add some padding to the left */
 }
 
 .progress-text {
@@ -300,13 +322,35 @@ export default defineComponent({
   white-space: nowrap;
   position: absolute;
   width: 100%;
-  text-align: left; /* Align text to the left */
-  padding-left: 12px; /* Add some padding to the left */
+  text-align: left;
+  /* Align text to the left */
+  padding-left: 12px;
+  /* Add some padding to the left */
 }
 
 .sample-error {
   font-size: 12px;
   color: red;
   margin-top: 5px;
+}
+.progress-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.confirm-button {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.confirm-button:hover {
+  background-color: #45a049;
 }
 </style>
