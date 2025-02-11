@@ -8,7 +8,7 @@
         <span class="status-label">POWER-BOX: {{ }}</span>
     </div>
     <div class="status-item">
-        <span class="status-label">TEMPERATURE: {{pcr_data.reactor_box.ambient_temperature}}°C</span>
+        <span class="status-label">TEMPERATURE: {{pcr_data.reactor_box_state.ambient_temperature}}°C</span>
     </div>
     <div class="status-item">
         <span class="status-label">UV-INDEX: {{ }}</span>

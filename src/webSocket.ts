@@ -1,5 +1,5 @@
 import io, { Socket } from "socket.io-client";
-import { ReactorState } from "./dataStore";
+import { ControllerState } from "./dataStore";
 
 class WebSocketObservable<Data> {
   private listeners: ((_:Data)=>void)[] = [];
@@ -17,13 +17,13 @@ class WebSocketObservable<Data> {
 export class WebSocketService {
   private socket: Socket;
   public observables = {
-    pcrdata: new WebSocketObservable<ReactorState>(),
+    pcrdata: new WebSocketObservable<ControllerState>(),
   }
 
   constructor(url: URL) {
     this.socket = io(url);
     this.socket.on("pcrdata", async (message) => {
-      const state: ReactorState = JSON.parse(message.data); // Parse the JSON-Strings to a JavaScript-Object
+      const state: ControllerState = JSON.parse(message.data); // Parse the JSON-Strings to a JavaScript-Object
       this.observables.pcrdata.dispatch(state);
     });
   }
