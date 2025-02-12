@@ -1,4 +1,3 @@
-<!-- src/components/Lane.vue -->
 <template>
   <div class="lane-layout">
     <h2 class="lane-title">Lane {{ laneNumber }}</h2>
