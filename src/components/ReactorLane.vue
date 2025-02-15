@@ -2,16 +2,53 @@
   <div class="lane-layout">
     <h2 class="lane-title">Lane {{ laneNumber }}</h2>
 
-    <!-- Experiment-Anzeige -->
     <div v-if="selectedExperiment">
-      <!-- Hier weiteres lane design-->
-      <p><strong>Experiment:</strong> {{ selectedExperiment.name }}</p>
-      <p><strong>LED back intensity:</strong> {{ selectedExperiment.led_back_intensity}}°C</p>
-      <p><strong>Lane {{ selectedExperiment.active_lane + 1 }} IR temperature: </strong>{{ getLaneIrTemperature(selectedExperiment.active_lane) }}</p>
-      <button @click="closeExperiment">remove</button>
+      <!-- Lane design here -->
+
+      <div class="header">
+        <div>{{ getVoltageByLaneAndPosition(selectedExperiment?.active_lane, "back") }} V</div>
+        <div>{{ getCurrentByLaneAndPosition(selectedExperiment?.active_lane, "back") }} mA ({{  }} %)</div>
+      </div>
+
+      <div class="led-info">
+        <div class="led-vial-distance">{{ selectedExperiment.led_back_distance_to_vial }} cm </div>
+        <div class="led-status"> {{ getLedByLane(selectedExperiment?.active_lane, "back") ? "Connection to LED lost" : "Connected" }}</div>
+        <div class="led-description"> {{ selectedExperiment.led_back.name }} - ({{ selectedExperiment.led_back.color }})</div>
+      </div>
+
+      <div class="sample-info">
+        <div class="sample-time">Sample in: {{ }}</div>
+        <div class="remaining-time"> Remaining time: {{  }}</div>
+        <div class="middle-bar">
+            <span class="text"> {{selectedExperiment.config_file.default_reaction_vessel_volume}} mL Vial</span>
+            <span class="temperature"> {{getLaneIrTemperature(selectedExperiment.active_lane)}} °C</span>
+            <div class="badge">{{ selectedExperiment.active_lane + 1 }}</div>
+        </div>
+      </div>
+
+      <div class="corr-temp">Corr. Temp.: {{ }} °C</div>
+
+      <div class="led-info">
+        <div class="led-vial-distance">{{ selectedExperiment.led_front_distance_to_vial }} cm </div>
+        <div class="led-status"> {{ getLedByLane(selectedExperiment?.active_lane, "front_and_vial") ? "Connection to LED lost" : "Connected" }}</div>
+        <div class="led-description"> {{ selectedExperiment.led_front.name }} - ({{ selectedExperiment.led_front.color }})</div>
+      </div>
+
+      <div class="footer">
+        <div>{{ getVoltageByLaneAndPosition(selectedExperiment?.active_lane, "front") }} V</div>
+        <div>{{ getCurrentByLaneAndPosition(selectedExperiment?.active_lane, "front") }} mA ({{}} %)</div>
+      </div>
+
+      <div class="ctrl-buttons">
+        <button v-if="!isExperimentRunning" @click="startExperiment">Start</button>
+        <button v-if="isExperimentRunning" @click="togglePauseResume">
+          {{ isPaused ? "Continue" : "Pause" }}
+        </button>
+        <button v-if="isExperimentRunning" @click="cancelExperiment">Cancel</button>
+      </div>
     </div>
 
-    <!-- Dropdown Button (nur wenn kein Experiment geladen ist) -->
+    <!-- Dropdown Button (only if no experiment is loaded) -->
     <button v-if="!selectedExperiment" class="button-class" @click="showDropdown = !showDropdown">
      +
     </button>
@@ -63,6 +100,8 @@ export default defineComponent({
     const experiments = ref<ExperimentTemplate[]>([]);
     const selectedUid = ref<number | null>(null);
     const selectedExperiment = ref<ExperimentTemplate | null>(null);
+    const isExperimentRunning = ref(false);
+    const isPaused = ref(false);
 
     // fetch the experiment templates
     const fetchExperiments = async () => {
@@ -77,7 +116,6 @@ export default defineComponent({
     // selects the experiment by its uid
     const loadExperiment = () => {
       if (!selectedUid.value) return;
-
       selectedExperiment.value = experiments.value.find(exp => exp.uid === selectedUid.value) || null;
       showDropdown.value = false;
     };
@@ -86,18 +124,78 @@ export default defineComponent({
       showDropdown.value = false;
     };
 
-    const closeExperiment = () =>{
-      alert("Warning! Experiment will be removed after clicking OK");
-      selectedExperiment.value = null;
+    //Not implemented jet
+    const startExperiment = async () => {
+      return;
+    }
+
+    const togglePauseResume = async () => {
+      if (!selectedExperiment.value) return;
+
+      try {
+        if (isPaused.value) {
+          const response = await axios.get(`resume_experiment?lane=${selectedExperiment.value.active_lane}`);
+          if (response.status === 200) {
+            isPaused.value = false;
+            alert("Experiment resumed!");
+          }
+        } else {
+          const response = await axios.get(`pause_experiment?lane=${selectedExperiment.value.active_lane}`);
+          if (response.status === 200) {
+            isPaused.value = true;
+            alert("Experiment paused!");
+          }
+        }
+      } catch (error) {
+        console.error("Fehler bei der Aktion:", error);
+      }
+    };
+
+    const cancelExperiment = async () => {
+      if (!selectedExperiment.value) return;
+
+      try{
+        const response = await axios.get(`cancle_experiment?lane=${selectedExperiment.value.active_lane}`);
+        if (response.status === 200){
+          isExperimentRunning.value = false;
+          isPaused.value = false;
+          selectedExperiment.value = null;
+          alert("Experiment canceled!");
+        }
+      } catch (error) {
+        console.error("Fehler beim canceln:", error);
+      }
     }
 
     // example function to have string interpolation in vue templates
     // to display websocket data depending on the lane number
     // workaround: no string interpolation in vue templates
     const getLaneIrTemperature = (laneNum: number) => {
+      if (laneNum === undefined) return "N/A";
       const key = `lane_${laneNum + 1}_ir_temp`;
       return pcr_data.reactor_box_state[key as keyof typeof pcr_data.reactor_box_state];
     }
+
+    // pos specified as back/ front
+    const getVoltageByLaneAndPosition = (laneNum: number | undefined, pos: string) => {
+      if (laneNum === undefined) return "N/A";
+      const key = `voltage_lane_${laneNum + 1}_${pos}`;
+      return pcr_data.power_box_state[key as keyof typeof pcr_data.power_box_state];
+    }
+
+    const getCurrentByLaneAndPosition = (laneNum: number | undefined, pos: string) => {
+      if (laneNum === undefined) return "N/A";
+      const key = `current_lane_${laneNum + 1}_${pos}`;
+      return pcr_data.power_box_state[key as keyof typeof pcr_data.power_box_state];
+    }
+
+    // pos specified as back/ front_and_vial
+    const getLedByLane = (laneNum: number | undefined, pos: string) => {
+      if (laneNum === undefined) return "N/A";
+      const key = `led_in_lane_${laneNum}_${pos}`;
+      pcr_data.power_box_state[key as keyof typeof pcr_data.power_box_state];
+    }
+
 
     onMounted(fetchExperiments);
 
@@ -108,9 +206,16 @@ export default defineComponent({
       selectedExperiment,
       loadExperiment,
       closeDropdown,
-      closeExperiment,
       pcr_data,
-      getLaneIrTemperature
+      getLaneIrTemperature,
+      getVoltageByLaneAndPosition,
+      getCurrentByLaneAndPosition,
+      getLedByLane,
+      togglePauseResume,
+      cancelExperiment,
+      isExperimentRunning,
+      isPaused,
+      startExperiment,
     };
   },
 });
@@ -272,5 +377,41 @@ export default defineComponent({
   margin-bottom: 8px;
   font-weight: 600;
   color: #555;
+}
+
+.middle-bar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 150px;
+  padding: 5px 10px;
+  border: 2px solid #003f87; /* Dunkelblauer Rahmen */
+  background-color: #f0f0f0; /* Heller Hintergrund */
+  position: relative;
+  font-family: Arial, sans-serif;
+}
+.text{
+  font-size: 14px;
+  color: black;
+}
+.temperature {
+  font-size: 14px;
+  color: #003f87; /* Blaue Schrift */
+  font-weight: bold;
+}
+.badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: gray;
+  color: white;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: bold;
 }
 </style>
