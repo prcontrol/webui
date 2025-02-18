@@ -63,3 +63,8 @@ export type TinkerforgeBricklet = {
   date_bought: string
 }
 
+export type fileType = {
+  uid: number
+  description: string
+}
+

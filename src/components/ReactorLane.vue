@@ -44,7 +44,7 @@
         <button v-if="isExperimentRunning" @click="togglePauseResume">
           {{ isPaused ? "Continue" : "Pause" }}
         </button>
-        <button v-if="isExperimentRunning" @click="cancelExperiment">Cancel</button>
+        <button v-if="selectedExperiment" @click="cancelExperiment">Cancel</button>
       </div>
     </div>
 
@@ -62,7 +62,7 @@
           <ul>
             <li v-for="experiment in experiments" :key="experiment.uid">
               <input type="radio" :value="experiment.uid" v-model="selectedUid" />
-              <span class="file-details">{{ experiment.uid }} - {{ experiment.name }}</span>
+              <span class="file-details">{{ experiment.uid }} - {{ experiment.description }}</span>
             </li>
           </ul>
         </div>
@@ -80,7 +80,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { ExperimentTemplate } from '@/ownTypes';
+import { ExperimentTemplate, fileType } from '@/ownTypes';
 import { register_pcr_data , pcr_data} from '@/dataStore';
 import axios from 'axios';
 
@@ -92,12 +92,12 @@ export default defineComponent({
       required: true,
     },
   },
-  setup() {
+  setup(props) {
 
     register_pcr_data()
 
     const showDropdown = ref(false);
-    const experiments = ref<ExperimentTemplate[]>([]);
+    const experiments = ref<fileType[]>([]);
     const selectedUid = ref<number | null>(null);
     const selectedExperiment = ref<ExperimentTemplate | null>(null);
     const isExperimentRunning = ref(false);
@@ -106,18 +106,23 @@ export default defineComponent({
     // fetch the experiment templates
     const fetchExperiments = async () => {
       try {
-        const response = await axios.get('exp_tmp');
-        experiments.value = response.data ?? [];
+        const response = await axios.get('list_exp_tmp');
+        experiments.value = response.data.results ?? [];
       } catch (error) {
         console.error("Error loading experiments:", error);
       }
     };
 
     // selects the experiment by its uid
-    const loadExperiment = () => {
+    const loadExperiment = async () => {
       if (!selectedUid.value) return;
-      selectedExperiment.value = experiments.value.find(exp => exp.uid === selectedUid.value) || null;
-      showDropdown.value = false;
+      try {
+        const response = await axios.get('exp_tmp', { params: { uid: selectedUid.value } });
+        selectedExperiment.value = response.data;
+        showDropdown.value = false;
+      } catch (error) {
+        console.error("Error loading selected experiment:", error);
+      }
     };
 
     const closeDropdown = () => {
@@ -126,21 +131,53 @@ export default defineComponent({
 
     //Not implemented jet
     const startExperiment = async () => {
-      return;
-    }
+      if (!selectedExperiment.value) return;
+
+      //Userinput as long as there is no input field in the ExperimentTemplate for lab notebook entry
+      const labNotebookEntry = prompt("Enter Lab Notebook Entry:");
+      if (!labNotebookEntry) {
+        alert("Lab Notebook Entry Required!");
+        return;
+      }
+      try {
+        const response = await axios.get('start_experiment', {
+          params: {
+            lane: props.laneNumber - 1,
+            template: selectedExperiment.value.uid,
+            lab_notebook_entry: labNotebookEntry,
+          },
+        });
+        if (response.status === 200){
+          alert("Experiment started!")
+          isExperimentRunning.value = true;
+        }
+      } catch (error) {
+        console.error("Fehler beim Starten des Experiments:", error);
+        alert("Experiment could not be started")
+        console.log("lane:", props.laneNumber - 1, "template:", selectedExperiment.value.uid);
+      }
+    };
 
     const togglePauseResume = async () => {
       if (!selectedExperiment.value) return;
 
       try {
         if (isPaused.value) {
-          const response = await axios.get(`resume_experiment?lane=${selectedExperiment.value.active_lane}`);
+          const response = await axios.get('resume_experiment', {
+            params: {
+              lane: props.laneNumber - 1
+            }
+          });
           if (response.status === 200) {
             isPaused.value = false;
             alert("Experiment resumed!");
           }
         } else {
-          const response = await axios.get(`pause_experiment?lane=${selectedExperiment.value.active_lane}`);
+          const response = await axios.get('pause_experiment', {
+            params: {
+              lane: props.laneNumber - 1
+            }
+          });
           if (response.status === 200) {
             isPaused.value = true;
             alert("Experiment paused!");
@@ -154,16 +191,25 @@ export default defineComponent({
     const cancelExperiment = async () => {
       if (!selectedExperiment.value) return;
 
-      try{
-        const response = await axios.get(`cancle_experiment?lane=${selectedExperiment.value.active_lane}`);
-        if (response.status === 200){
-          isExperimentRunning.value = false;
-          isPaused.value = false;
-          selectedExperiment.value = null;
-          alert("Experiment canceled!");
+      if (isExperimentRunning.value){
+        try{
+          const response = await axios.get('cancle_experiment', {
+            params: {
+              lane: props.laneNumber - 1
+            }
+          });
+          if (response.status === 200){
+            isExperimentRunning.value = false;
+            isPaused.value = false;
+            selectedExperiment.value = null;
+            alert("Experiment canceled!");
+          }
+        } catch (error) {
+          console.error("Fehler beim canceln:", error);
         }
-      } catch (error) {
-        console.error("Fehler beim canceln:", error);
+      } else {
+        selectedExperiment.value = null;
+        alert("OK removes experiment!");
       }
     }
 
@@ -413,5 +459,17 @@ export default defineComponent({
   justify-content: center;
   border-radius: 50%;
   font-weight: bold;
+}
+
+.header,
+.footer {
+  text-align: center;
+  font-size: 14px;
+}
+
+.led-info,
+.sample-info {
+  text-align: center;
+  font-size: 12px;
 }
 </style>

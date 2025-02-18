@@ -17,7 +17,7 @@ type ReactorBoxState = {
 }
 
 type PowerBoxState = {
-  ambient_temperature: number
+  abmient_temperature: number
   voltage_total: number
   current_total: number
   voltage_lane_1_front: number
