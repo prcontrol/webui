@@ -6,13 +6,13 @@
       <!-- Lane design here -->
 
       <div class="header">
-        <div>{{ getVoltageByLaneAndPosition(selectedExperiment?.active_lane, "back") }} V</div>
-        <div>{{ getCurrentByLaneAndPosition(selectedExperiment?.active_lane, "back") }} mA ({{  }} %)</div>
+        <div class="voltage-box">{{ getVoltageByLaneAndPosition(laneNumber, "back") }} V</div>
+        <div class="current-box">{{ getCurrentByLaneAndPosition(laneNumber, "back") }} mA ({{  }} %)</div>
       </div>
 
       <div class="led-info">
         <div class="led-vial-distance">{{ selectedExperiment.led_back_distance_to_vial }} cm </div>
-        <div class="led-status"> {{ getLedByLane(selectedExperiment?.active_lane, "back") ? "Connection to LED lost" : "Connected" }}</div>
+        <div class="led-status"> {{ getLedByLane(laneNumber, "back") ? "Connection to LED lost" : "Connected" }}</div>
         <div class="led-description"> {{ selectedExperiment.led_back.name }} - ({{ selectedExperiment.led_back.color }})</div>
       </div>
 
@@ -21,8 +21,8 @@
         <div class="remaining-time"> Remaining time: {{  }}</div>
         <div class="middle-bar">
             <span class="text"> {{selectedExperiment.config_file.default_reaction_vessel_volume}} mL Vial</span>
-            <span class="temperature"> {{getLaneIrTemperature(selectedExperiment.active_lane)}} °C</span>
-            <div class="badge">{{ selectedExperiment.active_lane + 1 }}</div>
+            <span class="temperature"> {{getLaneIrTemperature(laneNumber)}} °C</span>
+            <div class="badge">{{ laneNumber }}</div>
         </div>
       </div>
 
@@ -30,13 +30,13 @@
 
       <div class="led-info">
         <div class="led-vial-distance">{{ selectedExperiment.led_front_distance_to_vial }} cm </div>
-        <div class="led-status"> {{ getLedByLane(selectedExperiment?.active_lane, "front_and_vial") ? "Connection to LED lost" : "Connected" }}</div>
+        <div class="led-status"> {{ getLedByLane(laneNumber, "front_and_vial") ? "Connection to LED lost" : "Connected" }}</div>
         <div class="led-description"> {{ selectedExperiment.led_front.name }} - ({{ selectedExperiment.led_front.color }})</div>
       </div>
 
       <div class="footer">
-        <div>{{ getVoltageByLaneAndPosition(selectedExperiment?.active_lane, "front") }} V</div>
-        <div>{{ getCurrentByLaneAndPosition(selectedExperiment?.active_lane, "front") }} mA ({{}} %)</div>
+        <div>{{ getVoltageByLaneAndPosition(laneNumber, "front") }} V</div>
+        <div>{{ getCurrentByLaneAndPosition(laneNumber, "front") }} mA ({{}} %)</div>
       </div>
 
       <div class="ctrl-buttons">
@@ -129,7 +129,6 @@ export default defineComponent({
       showDropdown.value = false;
     };
 
-    //Not implemented jet
     const startExperiment = async () => {
       if (!selectedExperiment.value) return;
 
@@ -218,20 +217,20 @@ export default defineComponent({
     // workaround: no string interpolation in vue templates
     const getLaneIrTemperature = (laneNum: number) => {
       if (laneNum === undefined) return "N/A";
-      const key = `lane_${laneNum + 1}_ir_temp`;
+      const key = `lane_${laneNum}_ir_temp`;
       return pcr_data.reactor_box_state[key as keyof typeof pcr_data.reactor_box_state];
     }
 
     // pos specified as back/ front
     const getVoltageByLaneAndPosition = (laneNum: number | undefined, pos: string) => {
       if (laneNum === undefined) return "N/A";
-      const key = `voltage_lane_${laneNum + 1}_${pos}`;
+      const key = `voltage_lane_${laneNum}_${pos}`;
       return pcr_data.power_box_state[key as keyof typeof pcr_data.power_box_state];
     }
 
     const getCurrentByLaneAndPosition = (laneNum: number | undefined, pos: string) => {
       if (laneNum === undefined) return "N/A";
-      const key = `current_lane_${laneNum + 1}_${pos}`;
+      const key = `current_lane_${laneNum}_${pos}`;
       return pcr_data.power_box_state[key as keyof typeof pcr_data.power_box_state];
     }
 
@@ -429,7 +428,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 150px;
+  width: 300px;
   padding: 5px 10px;
   border: 2px solid #003f87; /* Dunkelblauer Rahmen */
   background-color: #f0f0f0; /* Heller Hintergrund */
@@ -447,18 +446,19 @@ export default defineComponent({
 }
 .badge {
   position: absolute;
-  top: -10px;
+  top: -7px;
   left: 50%;
   transform: translateX(-50%);
   background-color: gray;
   color: white;
-  width: 25px;
-  height: 25px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   font-weight: bold;
+  font-size: 18px;
 }
 
 .header,
@@ -471,5 +471,18 @@ export default defineComponent({
 .sample-info {
   text-align: center;
   font-size: 12px;
+  border: black;
+  border-radius: 4px;
+  padding: 10px;
+  justify-content: space-between;
 }
+
+.ctrl-buttons{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  border: none;
+  padding-top: 0px;
+}
+
 </style>
