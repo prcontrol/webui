@@ -2,10 +2,10 @@
 <!--get a specific valaue: pcr_data.reactor_box.ambient_light-->
   <header class="status-header">
     <div class="status-item">
-        <span class="status-label">PHOTO-BOX: {{  backendStatus === 1 ? 'Online' : 'Offline'  }}</span>
+        <span class="status-label">PHOTO-BOX: {{  photoBoxStatus }}</span>
     </div>
     <div class="status-item">
-        <span class="status-label">POWER-BOX: {{ }}</span>
+        <span class="status-label">POWER-BOX: {{ powerBoxStatus}}</span>
     </div>
     <div class="status-item">
         <span class="status-label">TEMPERATURE: {{pcr_data.reactor_box_state.ambient_temperature}}°C</span>
@@ -17,9 +17,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent } from 'vue';
 import { pcr_data, register_pcr_data } from '@/dataStore';
-import axios from 'axios';
 
 
 export default defineComponent({
@@ -29,20 +28,18 @@ export default defineComponent({
 
     register_pcr_data()
 
-    //just to test connection (not real reactor state)
-    const backendStatus = ref<number>(0);
-    axios.get('/')
-      .then(() => {
-        backendStatus.value = 1;
-      })
-      .catch(() => {
-        backendStatus.value = 0;
-      });
+    const photoBoxStatus = computed(() => {
+      return pcr_data.reactor_box_connected ? 'Online' : 'Offline';
+    });
 
+    const powerBoxStatus = computed(() => {
+      return pcr_data.power_box_connected ? 'Online' : 'Offline';
+    });
 
     return{
       pcr_data,
-      backendStatus,
+      photoBoxStatus,
+      powerBoxStatus
     };
   },
 });

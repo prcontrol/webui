@@ -1,7 +1,7 @@
 <template>
   <div class="overlay-on-select" >
     <div class="overlay-container">
-    <h2>Create Experiment</h2>
+    <h2>Create Experiment Template</h2>
     <form>
       <div class="arrange-content">
       <div class="left-content">
@@ -11,11 +11,7 @@
       </div>
       <div class="input-container">
         <label for="name">Name:</label>
-        <input tid="name" v-model="formData.name" type="text" required >
-      </div>
-      <div class="input-container">
-        <label for="lab-notebook-entry">Lab journal:</label>
-        <input id="lab_notebook_entry" v-model="formData.lab_notebook_entry" type="text" required >
+        <input tid="name" v-model="formData.name" type="text" :placeholder="'string'" required >
       </div>
       <div class="input-container">
         <label for="start-date">Date:</label>
@@ -29,6 +25,10 @@
             {{config.uid}} - {{ config.description }}
           </option>
       </select>
+      </div>
+      <div class="input-container">
+        <label for="active-lane">Active lane:</label>
+        <input id="active_lane" v-model="formData.active_lane" :placeholder="'int'" type="number" required>
       </div>
       <div class="input-container">
         <label for="led-front">LED front:</label>
@@ -47,13 +47,13 @@
         <label for="led-front-distance-to-vial">LED front distance to vial (cm):</label>
         <input id="led_front_distance_to_vial" v-model="formData.led_front_distance_to_vial" :placeholder="'float'" type="number" required >
       </div>
-      </div>
-
-      <div class="right-content">
       <div class="input-container">
         <label for="led-front-belichtungsdauer">LED front exposure time (min):</label>
         <input id="led_front_exposure_time" v-model="formData.led_front_exposure_time" :placeholder="'float'" type="number" required >
       </div>
+      </div>
+
+      <div class="right-content">
       <div class="input-container">
         <label for="led-back">LED back: </label>
         <select v-model="formData.led_back" id="ledBackDropdown">
@@ -77,15 +77,19 @@
       </div>
       <div class="input-container">
         <label for="pos-thermocouple">Position Thermocouple:</label>
-        <input id="position_thermocouple" v-model="formData.position_thermocouple" type="text" required>
+        <input id="position_thermocouple" v-model="formData.position_thermocouple" type="text" :placeholder="'string'"  required>
       </div>
       <div class="input-container">
         <label for="time-points-sample-taking">Time points sample taking:</label>
         <input id="time_points_sample_taking" v-model="formData.time_points_sample_taking" type="text" :placeholder="'int array: [1,10,...]'" required>
       </div>
       <div class="input-container">
-        <label for="active-lane">Active lane:</label>
-        <input id="active_lane" v-model="formData.active_lane" :placeholder="'int'" type="number" required>
+        <label for="size_sample">Sample size:</label>
+        <input id="size_sample" v-model="formData.active_lane" :placeholder="'float'" type="number" required>
+      </div>
+      <div class="input-container">
+        <label for="measurement-interval">Measurement interval:</label>
+        <input id="measurement_interval" v-model="formData.active_lane" :placeholder="'float'" type="number" required>
       </div>
       </div>
       </div>
@@ -111,7 +115,6 @@ export default defineComponent({
       const formData = ref({
         uid: '',
         name: '',
-        lab_notebook_entry: '',
         date: '',
         config_file: '',
         active_lane: '',
@@ -123,7 +126,9 @@ export default defineComponent({
         led_back_intensity: '',
         led_back_distance_to_vial: '',
         led_back_exposure_time: '',
-        time_points_sample_taking: '', //list of integers
+        time_points_sample_taking: '',
+        size_sample: '',
+        measurement_interval: '',
         position_thermocouple: '',
       });
 
@@ -133,8 +138,8 @@ export default defineComponent({
       };
 
       const submitForm = async () => {
-        if (!formData.value.uid && !formData.value.lab_notebook_entry) {
-         alert("Missing required fields 'Unique Identifier' and 'Lab Journal'");
+        if (!formData.value.uid ) {
+         alert("Missing required fields 'Unique Identifier'");
          return;
         }
 
@@ -149,7 +154,6 @@ export default defineComponent({
         formData.value.led_back = responseLedBack.data;
 
         formData.value.time_points_sample_taking = JSON.parse(formData.value.time_points_sample_taking);
-
 
         const jsonFile = new Blob([JSON.stringify(formData.value)], {
            type: 'application/json',

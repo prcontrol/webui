@@ -12,7 +12,7 @@
         </div>
         <div class="form-field">
           <label for="name">Name:</label>
-          <input id="name" v-model="formData.name" type="text" required />
+          <input id="name" v-model="formData.name" type="text" :placeholder="'string'" required />
         </div>
         <div class="form-field">
           <label for="fwhm">FWHM (full width at half maximum):</label>
@@ -32,11 +32,11 @@
         </div>
         <div class="form-field">
           <label for="color">Color:</label>
-          <input id="color" v-model="formData.color" type="text" required />
+          <input id="color" v-model="formData.color" type="text" :placeholder="'string'" required />
         </div>
         <div class="form-field">
           <label for="max-current">Maximum current (mA):</label>
-          <input id="max_current" v-model="formData.max_current" :placeholder="'int'" type="text" required />
+          <input id="max_current" v-model="formData.max_current" :placeholder="'int'" type="number" required />
         </div>
         </div>
 
@@ -55,7 +55,7 @@
         </div>
         <div class="form-field">
           <label for="soldered-by">Soldered by:</label>
-          <input id="soldered_by" v-model="formData.soldered_by" type="text" required />
+          <input id="soldered_by" v-model="formData.soldered_by" type="text" :placeholder="'string'" required />
         </div>
         <div class="form-field">
           <label for="operating-time">Operating time (h):</label>
@@ -67,7 +67,7 @@
         </div>
         <div class="form-field">
           <label for="emission-spectrum">Emission spectrum:</label>
-          <input id="emission_spectrum" v-model="formData.emission_spectrum" type="text" required />
+          <input id="emission_spectrum" v-model="formData.emission_spectrum" type="text" :placeholder="'string'" required />
         </div>
         <div class="form-field">
           <label for="emission-spectrum-recorded-on">Emission spectrum recorded on:</label>

@@ -13,7 +13,9 @@
       <div class="led-info">
         <div class="led-vial-distance">{{ selectedExperiment.led_back_distance_to_vial }} cm </div>
         <div class="led-status"> {{ getLedByLane(laneNumber, "back") ? "Connection to LED lost" : "Connected" }}</div>
-        <div class="led-description"> {{ selectedExperiment.led_back.name }} - ({{ selectedExperiment.led_back.color }})</div>
+        <div class="led-description" :style="{ borderColor: getLedBorderColor(selectedExperiment.led_back.color) }">
+          {{ selectedExperiment.led_back.name }} - ({{ selectedExperiment.led_back.color }})
+        </div>
       </div>
 
       <div class="sample-info">
@@ -29,22 +31,28 @@
       <div class="corr-temp">Corr. Temp.: {{ }} °C</div>
 
       <div class="led-info">
-        <div class="led-vial-distance">{{ selectedExperiment.led_front_distance_to_vial }} cm </div>
+        <div class="led-description" :style="{ borderColor: getLedBorderColor(selectedExperiment.led_front.color) }" >
+          {{ selectedExperiment.led_front.name }} - ({{ selectedExperiment.led_front.color }})
+        </div>
         <div class="led-status"> {{ getLedByLane(laneNumber, "front_and_vial") ? "Connection to LED lost" : "Connected" }}</div>
-        <div class="led-description"> {{ selectedExperiment.led_front.name }} - ({{ selectedExperiment.led_front.color }})</div>
+        <div class="led-vial-distance">{{ selectedExperiment.led_front_distance_to_vial }} cm </div>
       </div>
 
       <div class="footer">
-        <div>{{ getVoltageByLaneAndPosition(laneNumber, "front") }} V</div>
-        <div>{{ getCurrentByLaneAndPosition(laneNumber, "front") }} mA ({{}} %)</div>
+        <div class="voltage-box">{{ getVoltageByLaneAndPosition(laneNumber, "front") }} V</div>
+        <div class="current-box">{{ getCurrentByLaneAndPosition(laneNumber, "front") }} mA ({{}} %)</div>
       </div>
 
       <div class="ctrl-buttons">
-        <button v-if="!isExperimentRunning" @click="startExperiment">Start</button>
-        <button v-if="isExperimentRunning" @click="togglePauseResume">
-          {{ isPaused ? "Continue" : "Pause" }}
-        </button>
-        <button v-if="selectedExperiment" @click="cancelExperiment">Cancel</button>
+        <div class="ctrl-top" >
+          <button v-if="!isExperimentRunning" @click="startExperiment" class="start-btn">Start</button>
+          <button v-if="selectedExperiment" @click="cancelExperiment" class="cancle-button">Cancel</button>
+        </div>
+        <div class="ctrl-bottom" >
+          <button class="pause-btn" @click="togglePauseResume" :disabled="!isExperimentRunning">
+            {{ isPaused ? 'Continue' : 'Pause' }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -79,7 +87,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, computed } from 'vue';
 import { ExperimentTemplate, fileType } from '@/ownTypes';
 import { register_pcr_data , pcr_data} from '@/dataStore';
 import axios from 'axios';
@@ -192,7 +200,7 @@ export default defineComponent({
 
       if (isExperimentRunning.value){
         try{
-          const response = await axios.get('cancle_experiment', {
+          const response = await axios.get('cancel_experiment', {
             params: {
               lane: props.laneNumber - 1
             }
@@ -241,6 +249,22 @@ export default defineComponent({
       pcr_data.power_box_state[key as keyof typeof pcr_data.power_box_state];
     }
 
+    const getLedBorderColor = (colorValue: string): string => {
+      if (!colorValue) return 'grey';
+      const normalized = colorValue.toLowerCase();
+      if (['rot', 'red'].includes(normalized)) return 'red';
+      if (['grün', 'green'].includes(normalized)) return 'green';
+      if (['blau', 'blue'].includes(normalized)) return 'blue';
+      if (['gelb', 'yellow'].includes(normalized)) return 'yellow';
+      if (['ultraviolett', 'ultraviolet', 'uv'].includes(normalized)) return 'violet';
+      return 'grey';
+    };
+
+    const sampleActive = computed(() => {
+      const laneKey = `sample_lane_${props.laneNumber}`;
+      return pcr_data[laneKey as keyof typeof pcr_data] === true;
+    });
+
 
     onMounted(fetchExperiments);
 
@@ -261,6 +285,8 @@ export default defineComponent({
       isExperimentRunning,
       isPaused,
       startExperiment,
+      getLedBorderColor,
+      sampleActive
     };
   },
 });
@@ -424,24 +450,68 @@ export default defineComponent({
   color: #555;
 }
 
-.middle-bar{
+.voltage-box,
+.current-box {
+  width: 150px;               /* Gleiche Breite */
+  height: 20px;               /* Gleiche Höhe */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+
+.header,
+.footer {
+  width: 300px;               /* Gesamte Breite für Header/Footer */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;                  /* Abstand zwischen den Boxen */
+  margin: 10px auto;          /* Zentrieren + etwas Margin */
+
+
+}
+
+.led-info {
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0; /* Abstand zu Elementen darüber und darunter */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px; /* Abstand zwischen den einzelnen Items */
+}
+
+.sample-info {
+  text-align: center;
+  font-size: 12px;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0; /* Abstand nach oben/unten */
+}
+
+.middle-bar {
+  margin: 10px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 300px;
   padding: 5px 10px;
-  border: 2px solid #003f87; /* Dunkelblauer Rahmen */
-  background-color: #f0f0f0; /* Heller Hintergrund */
+  border: 2px solid #003f87;
+  background-color: #f0f0f0;
   position: relative;
   font-family: Arial, sans-serif;
 }
-.text{
+
+.text {
   font-size: 14px;
   color: black;
 }
 .temperature {
   font-size: 14px;
-  color: #003f87; /* Blaue Schrift */
+  color: #003f87;
   font-weight: bold;
 }
 .badge {
@@ -461,28 +531,55 @@ export default defineComponent({
   font-size: 18px;
 }
 
-.header,
-.footer {
-  text-align: center;
-  font-size: 14px;
+.corr-temp {
+  margin: 10px 0;
+  font-weight: bold;
 }
 
-.led-info,
-.sample-info {
-  text-align: center;
-  font-size: 12px;
-  border: black;
-  border-radius: 4px;
-  padding: 10px;
-  justify-content: space-between;
-}
-
-.ctrl-buttons{
+/* Control-Buttons unten mit Abstand */
+.ctrl-buttons {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
-  border: none;
-  padding-top: 0px;
+  margin-top: auto;      /* Schiebt die Buttons an das untere Ende der Lane */
+  margin-bottom: 5px;   /* Abstand zum unteren Rand */
+  justify-content: center;
+}
+
+.ctrl-top {
+  display: flex;
+  gap: 10px;
+}
+
+.ctrl-buttons button {
+  width: 100px;      /* Gleiche Breite für alle Buttons (Start/Cancel/Pause) */
+  height: 35px;      /* Einheitliche Höhe */
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: white;
+}
+
+.led-vial-distance,
+.led-status,
+.led-description {
+  border: 1px solid #ccc;
+  padding: 5px;
+  margin: 3px 0;
+}
+
+.led-description {
+  border: 2px solid; /* Die Farbe wird dynamisch gesetzt */
+  border-radius: 4px;
+  padding: 5px;
+  text-align: center;
+}
+
+.sample-time,
+.remaining-time{
+  font-weight: bold;
+  padding: 5px;
+  text-align: left;
 }
 
 </style>
