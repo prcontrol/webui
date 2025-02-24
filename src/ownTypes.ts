@@ -13,6 +13,8 @@ export type ExperimentTemplate = {
   led_back_distance_to_vial: number
   led_back_exposure_time: number
   time_points_sample_taking: number[]
+  size_sample: number
+  measurement_interval: number
   position_thermocouple: string
 }
 

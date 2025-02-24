@@ -10,7 +10,7 @@
         <option value="">Select configuration to create...</option>
         <option value="addConfig">Hardware Configuration</option>
         <option value="addLed">LED</option>
-        <option value="addExperiment">Experiment</option>
+        <option value="addExperiment">Experiment Template</option>
       </select>
     </div>
     <div class="close-button">
@@ -50,9 +50,8 @@
 
       const closeDropdown = () => {
         showDropdown.value = false;
-        //selectedForm.value = '';
-
       };
+
       const closeForm = () => {
         selectedForm.value = '';
       };
@@ -121,7 +120,7 @@
   position: absolute;
   bottom: -20px;
   left: 50%;
-  transform: translateX(-70%);
+  transform: translateX(-100%);
   background-color: #919191;
   color: #fff;
   padding: 5px 15px;

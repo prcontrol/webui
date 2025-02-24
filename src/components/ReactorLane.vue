@@ -19,8 +19,8 @@
       </div>
 
       <div class="sample-info">
-        <div class="sample-time">Sample in: {{ }}</div>
-        <div class="remaining-time"> Remaining time: {{  }}</div>
+        <div class="sample-time">Sample in: {{ getRemainingTimeForLane(laneNumber) }}</div>
+        <div class="remaining-time"> Remaining samples: {{ getRemainingSamplesForLane(laneNumber) }}</div>
         <div class="middle-bar">
             <span class="text"> {{selectedExperiment.config_file.default_reaction_vessel_volume}} mL Vial</span>
             <span class="temperature"> {{getLaneIrTemperature(laneNumber)}} °C</span>
@@ -102,7 +102,7 @@ export default defineComponent({
   },
   setup(props) {
 
-    register_pcr_data()
+    register_pcr_data();
 
     const showDropdown = ref(false);
     const experiments = ref<fileType[]>([]);
@@ -127,6 +127,8 @@ export default defineComponent({
       try {
         const response = await axios.get('exp_tmp', { params: { uid: selectedUid.value } });
         selectedExperiment.value = response.data;
+        //store experiment local to mitigate experiment loss when refreshing the application
+        localStorage.setItem(`activeExperiment_lane_${props.laneNumber}`, JSON.stringify(response.data));
         showDropdown.value = false;
       } catch (error) {
         console.error("Error loading selected experiment:", error);
@@ -198,6 +200,9 @@ export default defineComponent({
     const cancelExperiment = async () => {
       if (!selectedExperiment.value) return;
 
+      const userConfirmed = confirm("Are you sure to cancel the experiment?");
+      if(!userConfirmed) return;
+
       if (isExperimentRunning.value){
         try{
           const response = await axios.get('cancel_experiment', {
@@ -216,7 +221,8 @@ export default defineComponent({
         }
       } else {
         selectedExperiment.value = null;
-        alert("OK removes experiment!");
+        //On cancel remove experiment from local storage
+        localStorage.removeItem(`activeExperiment_lane_${props.laneNumber}`);
       }
     }
 
@@ -246,7 +252,7 @@ export default defineComponent({
     const getLedByLane = (laneNum: number | undefined, pos: string) => {
       if (laneNum === undefined) return "N/A";
       const key = `led_in_lane_${laneNum}_${pos}`;
-      pcr_data.power_box_state[key as keyof typeof pcr_data.power_box_state];
+      return pcr_data.power_box_state[key as keyof typeof pcr_data.power_box_state];
     }
 
     const getLedBorderColor = (colorValue: string): string => {
@@ -262,11 +268,35 @@ export default defineComponent({
 
     const sampleActive = computed(() => {
       const laneKey = `sample_lane_${props.laneNumber}`;
-      return pcr_data[laneKey as keyof typeof pcr_data] === true;
+      return pcr_data.experiment_states[laneKey as keyof typeof pcr_data.experiment_states].needs_sample;
     });
 
+    const formatTime = (seconds: number): string => {
+      const hours = Math.floor(seconds / 3600);
+      const mins = Math.floor((seconds % 3600) / 60);
+      const secs = seconds % 60;
+      // Format: hh:mm:ss (z.B. 01:30:45)
+      return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
 
-    onMounted(fetchExperiments);
+    const getRemainingTimeForLane = (laneNum: number): string => {
+      const laneKey = `state_lane_${laneNum}`;
+      const timeValue = pcr_data.experiment_states[laneKey as keyof typeof pcr_data.experiment_states].time_til_next_sample;
+      return formatTime(timeValue);
+    };
+
+    const getRemainingSamplesForLane = (laneNum: number): number => {
+      const laneKey = `state_lane_${laneNum}`;
+      return pcr_data.experiment_states[laneKey as keyof typeof pcr_data.experiment_states].samples_remaining;
+    };
+
+    onMounted(()=>{
+      fetchExperiments();
+      const storedExperiment = localStorage.getItem(`activeExperiment_lane_${props.laneNumber}`);
+      if (storedExperiment) {
+        selectedExperiment.value = JSON.parse(storedExperiment);
+      }
+    });
 
     return {
       showDropdown,
@@ -286,7 +316,9 @@ export default defineComponent({
       isPaused,
       startExperiment,
       getLedBorderColor,
-      sampleActive
+      sampleActive,
+      getRemainingTimeForLane,
+      getRemainingSamplesForLane
     };
   },
 });
