@@ -13,9 +13,9 @@
         </div>
       </div>
       <div class="lanes-container">
-        <ReactorLane title="Lane 1"/>
-        <ReactorLane title="Lane 2"/>
-        <ReactorLane title="Lane 3"/>
+        <ReactorLane :laneNumber="1" />
+        <ReactorLane :laneNumber="2"/>
+        <ReactorLane :laneNumber="3"/>
       </div>
 
     </div>

@@ -11,7 +11,7 @@
       </div>
       <div class="input-container">
         <label for="name">Name:</label>
-        <input tid="name" v-model="formData.name" type="text" required >
+        <input tid="name" v-model="formData.name" type="text" :placeholder="'string'" required >
       </div>
       <div class="input-container">
        <label for="tinkerforge-bricklets">Select Tinkerforge bricklets:</label>
@@ -24,7 +24,7 @@
       </div>
       <div class="input-container">
         <label for="software-version">Software version: </label>
-        <input id="software_version" v-model="formData.software_version" type="text" required >
+        <input id="software_version" v-model="formData.software_version" type="text" :placeholder="'string'" required >
       </div>
       <div class="input-container">
         <label for="date">Date:</label>
@@ -36,7 +36,7 @@
       </div>
       <div class="input-container">
         <label for="default-position-thermocouple">Default position of thermocouple:</label>
-        <input id="default_position_thermocouple" v-model="formData.default_position_thermocouple" type="text" required >
+        <input id="default_position_thermocouple" v-model="formData.default_position_thermocouple" type="text" :placeholder="'string'" required >
       </div>
       </div>
 

@@ -80,15 +80,16 @@ export default defineComponent({
       selectedFiles.value = [];
       showFileSelection.value = false;
     };
-
     const closeFileList = () => {
       showFileSelection.value = false;
       showDropdown.value = true;  // Show the dropdown again
     };
 
     const loadFiles = async () => {
+      selectedFiles.value = [];
+      availableFiles.value = [];
+
       if (!selectedFiles.value){
-        availableFiles.value = [];
         showFileSelection.value = false;
         return;
       }
@@ -107,7 +108,7 @@ export default defineComponent({
         alert("No file selected");
         return;
       }
-      //get the file/s for given uid from backend
+      //get the file/s from backend
       selectedFiles.value.forEach(async (uid) => {
         const response = await axios.get(`${selectedForm.value}`, {
           params: {uid},
@@ -174,7 +175,7 @@ export default defineComponent({
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 400px;
-  height: auto;
+  min-height: 200px;
 }
 
 .form-header {
@@ -207,6 +208,21 @@ export default defineComponent({
   font-size: 20px;
 }
 
+.button-class:hover::after{
+  content: "Download Center";
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-6%);
+  background-color: #919191;
+  color: #fff;
+  padding: 5px 15px;
+  font-size: 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
 .button-container {
   margin-top: 20px;
   display: flex;
@@ -232,7 +248,7 @@ export default defineComponent({
   padding: 20px;
   border-radius: 8px;
   width: 400px;
-  height: auto;
+  min-height: 200px;
 }
 
 .file-list {

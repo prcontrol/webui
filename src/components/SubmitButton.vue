@@ -163,8 +163,22 @@ export default defineComponent({
   font-size: 20px;
 }
 
+.button-class:hover::after{
+  content: "Upload Config";
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #919191;
+  color: #fff;
+  padding: 5px 15px;
+  font-size: 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
 .close-button {
-  cursor: pointer;
   justify-content: center;
   margin-top: 40px;
 }
