@@ -21,39 +21,27 @@ export type ExperimentTemplate = {
 export type HardwareConfig = {
   uid: number
   name: string
-  software_version: string
   date: string
-  default_distance_led_vial: number
+  default_distance_led_vial: string
   default_position_thermocouple: string
-  default_pwm_channels: number[]
   default_temperature_threshold: number
   default_uv_threshold: number
-  default_sensor_query_interval: number
   default_reaction_vessel_volume: number
 }
 
 export type LED = {
   uid: number
   name: string
-  fwhm: number
-  max_of_emission: number
+  max_current_ma: number
   min_wavelength: number
   max_wavelength: number
   color: string
-  max_current: number
-  manufacturer_id: number
-  order_id: number
-  date_soldering: number
-  soldered_by: number
-  operating_time: number
+  fwhm: number
+  max_of_emission: number
+  soldered_by_on: string
   defect: boolean
-  emission_spectrum: EmmissionPair[]
-  emission_spectrum_recorded_on: string
-}
-
-export type EmmissionPair = {
-  wavelength: number
-  intensity: number
+  emission_spectrum: string
+  misc: string
 }
 
 export type fileType = {

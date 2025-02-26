@@ -68,9 +68,9 @@ export default defineComponent({
         default_distance_led_vial: '',
         default_position_thermocouple: 0.0,
 
-        default_temperature_threshold: '',
-        default_uv_threshold: '',
-        default_reaction_vessel_volume: '',
+        default_temperature_threshold: 30.0,
+        default_uv_threshold: 8.0,
+        default_reaction_vessel_volume: 0.0,
       });
 
       const closeForm = () => {

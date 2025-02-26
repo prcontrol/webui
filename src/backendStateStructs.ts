@@ -171,10 +171,6 @@ export const pcr_data = reactive(
 
 export function register_pcr_data() {
   ws_observables.pcrdata.register((data: Partial<ControllerState>) => {
-     // Logge die gesamte empfangene Datenstruktur zur Überprüfung
-    console.log("UPDATE empfangen:", JSON.stringify(data, null, 2));
-
     Object.assign(pcr_data, data);
-
   });
 }
