@@ -14,19 +14,6 @@
         <input tid="name" v-model="formData.name" type="text" :placeholder="'string'" required >
       </div>
       <div class="input-container">
-       <label for="tinkerforge-bricklets">Select Tinkerforge bricklets:</label>
-        <select v-model="formData.tinkerforge_bricklets" multiple>
-        <option value="" disabled selected>Chose bricklet ...</option>
-         <option v-for="bricklet in bricklets" :key="bricklet.uid" :value="bricklet.uid">
-          {{bricklet.uid}} - {{ bricklet.description }}
-        </option>
-       </select>
-      </div>
-      <div class="input-container">
-        <label for="software-version">Software version: </label>
-        <input id="software_version" v-model="formData.software_version" type="text" :placeholder="'string'" required >
-      </div>
-      <div class="input-container">
         <label for="date">Date:</label>
         <input id="date" v-model="formData.date" type="date" required >
       </div>
@@ -42,20 +29,12 @@
 
       <div class="right-content">
       <div class="input-container">
-        <label for="default-pwm-channels">Default PWM channels:</label>
-        <input id="default_pwm_channels" v-model="formData.default_pwm_channels" :placeholder="'float array: [1.2, 2.0, ...]'" type="text" required >
-      </div>
-      <div class="input-container">
         <label for="default-temperature-threshold">Default temperature threshold:</label>
         <input id="default_temperature_threshold" v-model="formData.default_temperature_threshold" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
         <label for="default-uv-threshold">Default UV threshold:</label>
         <input id="default_uv_threshold" v-model="formData.default_uv_threshold" :placeholder="'float'" type="number" required >
-      </div>
-      <div class="input-container">
-        <label for="default-sensor-query-interval">Default sensor query interval (sec):</label>
-        <input id="default_sensor_query_interval" v-model="formData.default_sensor_query_interval" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
         <label for="default-reaction-vessel-volume">Default reaction vessel volume:</label>
@@ -82,19 +61,16 @@ export default defineComponent({
 
    setup(_,{emit}){
       const formData = ref({
-        uid: '',
+        uid: 0,
         name: '',
-        tinkerforge_bricklets: [] as number[], //list of tinkerforge bricklets
-        software_version: '',
         date: '',
+
         default_distance_led_vial: '',
-        default_position_thermocouple: '',
-        default_pwm_channels: '',
+        default_position_thermocouple: 0.0,
+
         default_temperature_threshold: '',
         default_uv_threshold: '',
-        default_sensor_query_interval: '',
         default_reaction_vessel_volume: '',
-
       });
 
       const closeForm = () => {
@@ -102,28 +78,6 @@ export default defineComponent({
       };
 
       const submitForm = async () => {
-        if (!formData.value.date && !formData.value.default_distance_led_vial) {
-         alert("Missing required fields 'Date' and 'Default distance led to vial'.");
-         return;
-        }
-        if (formData.value.tinkerforge_bricklets.length === 0) {
-        alert('Select at least one Tinkerforge bricklet.');
-        return;
-        }
-        //fetch bricklet data for selected uid/s
-        const fetchBrickletData = formData.value.tinkerforge_bricklets.map(
-          async (uid) => {
-            const response = await axios.get('bricklet', {
-              params: {uid},
-            });
-            return response.data;
-          }
-        );
-        const brickletData = await Promise.all(fetchBrickletData);
-        formData.value.tinkerforge_bricklets = brickletData;
-
-        formData.value.default_pwm_channels = JSON.parse(formData.value.default_pwm_channels);
-
         const jsonFile = new Blob([JSON.stringify(formData.value)], {
            type: 'application/json',
         });

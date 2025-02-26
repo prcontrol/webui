@@ -1,5 +1,5 @@
 import io, { Socket } from "socket.io-client";
-import { ControllerState } from "./dataStore";
+import { ControllerState } from "./backendStateStructs";
 
 class WebSocketObservable<Data> {
   private listeners: ((_:Data)=>void)[] = [];

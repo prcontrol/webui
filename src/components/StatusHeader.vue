@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
-import { pcr_data, register_pcr_data } from '@/dataStore';
+import { pcr_data, register_pcr_data } from '@/backendStateStructs';
 
 
 export default defineComponent({

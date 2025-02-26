@@ -14,6 +14,29 @@
           <label for="name">Name:</label>
           <input id="name" v-model="formData.name" type="text" :placeholder="'string'" required />
         </div>
+
+        <div class="form-field">
+          <label for="max-current">Maximum current (mA):</label>
+          <input id="max_current" v-model="formData.max_current" :placeholder="'int'" type="number" required />
+        </div>
+
+        <div class="form-field">
+          <label for="min-wavelength">Minimal wavelength:</label>
+          <input id="min_wavelength" v-model="formData.min_wavelength" :placeholder="'int'" type="number" required />
+        </div>
+
+        <div class="form-field">
+          <label for="max-wavelength">Maximum wavelength:</label>
+          <input id="max_wavelength" v-model="formData.max_wavelength" :placeholder="'int'" type="number" required />
+        </div>
+
+
+        <div class="form-field">
+          <label for="color">Color:</label>
+          <input id="color" v-model="formData.color" type="text" :placeholder="'string'" required />
+        </div>
+
+
         <div class="form-field">
           <label for="fwhm">FWHM (full width at half maximum):</label>
           <input id="fwhm" v-model="formData.fwhm" :placeholder="'int'" type="number" required />
@@ -22,44 +45,14 @@
           <label for="max-of-emission">Maximum of emission:</label>
           <input id="max_of_emission" v-model="formData.max_of_emission" :placeholder="'int'" type="number" required />
         </div>
-        <div class="form-field">
-          <label for="min-wavelength">Minimal wavelength:</label>
-          <input id="min_wavelength" v-model="formData.min_wavelength" :placeholder="'int'" type="number" required />
-        </div>
-        <div class="form-field">
-          <label for="max-wavelength">Maximum wavelength:</label>
-          <input id="max_wavelength" v-model="formData.max_wavelength" :placeholder="'int'" type="number" required />
-        </div>
-        <div class="form-field">
-          <label for="color">Color:</label>
-          <input id="color" v-model="formData.color" type="text" :placeholder="'string'" required />
-        </div>
-        <div class="form-field">
-          <label for="max-current">Maximum current (mA):</label>
-          <input id="max_current" v-model="formData.max_current" :placeholder="'int'" type="number" required />
-        </div>
+
         </div>
 
         <div class="right-content">
+
         <div class="form-field">
-          <label for="manufacturer-id">Manufacturer ID:</label>
-          <input id="manufacturer_id" v-model="formData.manufacturer_id" :placeholder="'int'" type="number" required />
-        </div>
-        <div class="form-field">
-          <label for="order_id">Order ID:</label>
-          <input id="order_id" v-model="formData.order_id" :placeholder="'int'" type="number" required />
-        </div>
-        <div class="form-field">
-          <label for="date-soldering">Date soldering:</label>
-          <input id="date_soldering" v-model="formData.date_soldering" type="date" required />
-        </div>
-        <div class="form-field">
-          <label for="soldered-by">Soldered by:</label>
-          <input id="soldered_by" v-model="formData.soldered_by" type="text" :placeholder="'string'" required />
-        </div>
-        <div class="form-field">
-          <label for="operating-time">Operating time (h):</label>
-          <input id="operating_time" v-model="formData.operating_time" :placeholder="'float'" type="number" required />
+          <label for="soldered-by">Soldered by and on date:</label>
+          <input id="soldered_by" v-model="formData.soldered_by_on" type="text" :placeholder="'string'" required />
         </div>
         <div class="form-field">
           <label for="defect">Defect:</label>
@@ -70,8 +63,8 @@
           <input id="emission_spectrum" v-model="formData.emission_spectrum" type="text" :placeholder="'string'" required />
         </div>
         <div class="form-field">
-          <label for="emission-spectrum-recorded-on">Emission spectrum recorded on:</label>
-          <input id="emission_spectrum_recorded_on" v-model="formData.emission_spectrum_recorded_on" type="date" required />
+          <label for="emission-spectrum-recorded-on">Miscellaneous:</label>
+          <input id="emission_spectrum_recorded_on" v-model="formData.misc" type="date" required />
         </div>
         </div>
         </div>
@@ -97,20 +90,16 @@ export default defineComponent({
     const formData = ref({
       uid: '',
       name: '',
-      fwhm: '',
-      max_of_emission: '',
+      max_current_ma: '',
       min_wavelength: '',
       max_wavelength: '',
       color: '',
-      max_current: '',
-      manufacturer_id: '',
-      order_id: '',
-      date_soldering: '',
-      soldered_by: '',
-      operating_time: '',
+      fwhm: '',
+      max_of_emission: '',
+      soldered_by_on: '',
       defect: '',
       emission_spectrum: '',
-      emission_spectrum_recorded_on:'',
+      misc  : '',
     });
 
 
@@ -121,13 +110,6 @@ export default defineComponent({
 
     // Handle form submission and create a JSON file
     const submitForm = () => {
-      if (!formData.value.max_wavelength) {
-         alert("Missing required field 'Maximum wavelength'");
-         return;
-        }
-
-      formData.value.emission_spectrum = JSON.parse(formData.value.emission_spectrum);
-
       const jsonFile = new Blob([JSON.stringify(formData.value)], {
           type: 'application/json',
         });

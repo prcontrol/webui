@@ -88,8 +88,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, computed } from 'vue';
-import { ExperimentTemplate, fileType } from '@/ownTypes';
-import { register_pcr_data , pcr_data} from '@/dataStore';
+import { ExperimentTemplate, fileType } from '@/configTypes';
+import { register_pcr_data , pcr_data} from '@/backendStateStructs';
 import axios from 'axios';
 
 export default defineComponent({
