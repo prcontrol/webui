@@ -16,7 +16,6 @@
             <option value="config">Configuration</option>
             <option value="experiment">Experiment</option>
             <option value="exp_tmp">Experiment Template</option>
-            <option value="bricklet">Tinkerforge Bricklet</option>
           </select>
         </div>
 

@@ -104,13 +104,6 @@ export default defineComponent({
       }
 
       const bricklets = ref<brickletType[]>([]);
-      const loadBricklets = async () => {
-        const response = await axios.get('list_bricklet');
-        const data = response.data.results;
-        bricklets.value = data;
-        console.log('Bricklets geladen:', data);
-      };
-
       //close form if ESC key pressed
       const handleEsc = (event: KeyboardEvent) => {
       if(event.key === 'Escape') {
@@ -120,7 +113,6 @@ export default defineComponent({
 
       onMounted(() => {
         window.addEventListener('keydown', handleEsc);
-        loadBricklets();
       });
 
       onBeforeUnmount(() => {
@@ -132,7 +124,6 @@ export default defineComponent({
         closeForm,
         submitForm,
         bricklets,
-        loadBricklets,
       };
     },
 });

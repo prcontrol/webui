@@ -21,7 +21,6 @@ export type ExperimentTemplate = {
 export type HardwareConfig = {
   uid: number
   name: string
-  tinkerforge_bricklets: TinkerforgeBricklet[]
   software_version: string
   date: string
   default_distance_led_vial: number
@@ -55,14 +54,6 @@ export type LED = {
 export type EmmissionPair = {
   wavelength: number
   intensity: number
-}
-
-export type TinkerforgeBricklet = {
-  uid: number
-  name: string
-  version: string
-  defective: boolean
-  date_bought: string
 }
 
 export type fileType = {
