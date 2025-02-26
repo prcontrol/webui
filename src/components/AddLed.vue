@@ -17,7 +17,7 @@
 
         <div class="form-field">
           <label for="max-current">Maximum current (mA):</label>
-          <input id="max_current" v-model="formData.max_current" :placeholder="'int'" type="number" required />
+          <input id="max_current" v-model="formData.max_current_ma" :placeholder="'int'" type="number" required />
         </div>
 
         <div class="form-field">
@@ -64,7 +64,7 @@
         </div>
         <div class="form-field">
           <label for="emission-spectrum-recorded-on">Miscellaneous:</label>
-          <input id="emission_spectrum_recorded_on" v-model="formData.misc" type="date" required />
+          <input id="emission_spectrum_recorded_on" v-model="formData.misc" type="text" required />
         </div>
         </div>
         </div>
@@ -81,26 +81,27 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue';
-import axios from 'axios';
+import { LED } from '@/configTypes';
+import { upload_led } from '@/apiBindings';
 
 export default defineComponent({
   name: 'AddLed',
   emits: ['close-form'],
   setup(_,{emit}) {
     const formData = ref({
-      uid: '',
+      uid: 0,
       name: '',
-      max_current_ma: '',
-      min_wavelength: '',
-      max_wavelength: '',
+      max_current_ma: 0,
+      min_wavelength: 0,
+      max_wavelength: 0,
       color: '',
-      fwhm: '',
-      max_of_emission: '',
+      fwhm: 0.0,
+      max_of_emission: 0.0,
       soldered_by_on: '',
-      defect: '',
+      defect: false,
       emission_spectrum: '',
       misc  : '',
-    });
+    } as LED);
 
 
     const closeForm = () => {
@@ -110,18 +111,8 @@ export default defineComponent({
 
     // Handle form submission and create a JSON file
     const submitForm = () => {
-      const jsonFile = new Blob([JSON.stringify(formData.value)], {
-          type: 'application/json',
-        });
-
-      const uploadJSON = new FormData();
-      uploadJSON.append('json_file', jsonFile, 'formData.json');
-
-      axios.post('led', uploadJSON, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        }
-      }).catch((err) => {
+      upload_led(formData.value)
+      .catch((err) => {
         console.log(`Fehler beim hochladen: ${err}`)
       })
 

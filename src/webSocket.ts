@@ -9,7 +9,6 @@ class WebSocketObservable<Data> {
   }
 
   public dispatch(data: Data): void {
-    console.log("Dispatching", data);
     this.listeners.forEach((fn => fn(data)));
   }
 }

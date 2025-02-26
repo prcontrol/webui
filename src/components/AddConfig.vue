@@ -53,7 +53,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount} from 'vue';
-import axios from 'axios';
+import { HardwareConfig } from '../configTypes.js';
+import { upload_hw_conf } from '../apiBindings';
 
 export default defineComponent({
    name: 'AddConfig',
@@ -64,33 +65,20 @@ export default defineComponent({
         uid: 0,
         name: '',
         date: '',
-
         default_distance_led_vial: '',
-        default_position_thermocouple: 0.0,
-
+        default_position_thermocouple: '',
         default_temperature_threshold: 30.0,
         default_uv_threshold: 8.0,
         default_reaction_vessel_volume: 0.0,
-      });
+      } as HardwareConfig);
 
       const closeForm = () => {
         emit('close-form'); //Mothercomponent is DropdownAddConf.vue
       };
 
       const submitForm = async () => {
-        const jsonFile = new Blob([JSON.stringify(formData.value)], {
-           type: 'application/json',
-        });
-
-        const uploadJSON = new FormData();
-        uploadJSON.append('json_file', jsonFile, "formData.json");
-        //Console output of JSON data
-        console.log("JSON-Inhalt:", JSON.stringify(formData.value, null, 2));
-        axios.post('config', uploadJSON, {
-          headers: {
-           'Content-Type': 'multipart/form-data',
-          }
-        }).catch((err) => {
+        upload_hw_conf(formData.value)
+        .catch((err) => {
           console.log(`Fehler beim hochladen: ${err}`)
         })
 

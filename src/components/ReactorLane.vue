@@ -10,7 +10,7 @@
         <div class="current-box">{{ getCurrentByLaneAndPosition(laneNumber, "back") }} mA ({{  }} %)</div>
       </div>
 
-      <div class="led-info">
+      <div class="led-info" v-if="selectedExperiment.led_back !== null">
         <div class="led-vial-distance">{{ selectedExperiment.led_back_distance_to_vial }} cm </div>
         <div class="led-status"> {{ getLedByLane(laneNumber, "back") ? "Connection to LED lost" : "Connected" }}</div>
         <div class="led-description" :style="{ borderColor: getLedBorderColor(selectedExperiment.led_back.color) }">
@@ -30,7 +30,7 @@
 
       <div class="corr-temp">Corr. Temp.: {{ }} °C</div>
 
-      <div class="led-info">
+      <div class="led-info" v-if="selectedExperiment.led_front !== null">
         <div class="led-description" :style="{ borderColor: getLedBorderColor(selectedExperiment.led_front.color) }" >
           {{ selectedExperiment.led_front.name }} - ({{ selectedExperiment.led_front.color }})
         </div>

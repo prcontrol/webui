@@ -26,21 +26,21 @@
       <AddLed @close-form="closeForm"/>
     </div>
     <div v-if="selectedForm === 'addExperiment'">
-      <AddExperiment @close-form="closeForm"/>
+      <AddTemplate @close-form="closeForm"/>
     </div>
   </div>
   </template>
 
   <script lang="ts">
   import { defineComponent, ref } from 'vue';
-  import AddExperiment from './AddExperiment.vue';
+  import AddTemplate from './AddTemplate.vue';
   import AddLed from './AddLed.vue';
   import AddConfig from './AddConfig.vue';
 
   export default defineComponent({
     name: 'DropdownAddConf',
     components: {
-      AddExperiment,
+      AddTemplate,
       AddLed,
       AddConfig,
     },

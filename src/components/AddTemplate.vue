@@ -19,7 +19,7 @@
       </div>
       <div class="input-container">
         <label for="hardware-config">Hardware Configuration:</label>
-        <select v-model="formData.config_file" id="configDropdown">
+        <select v-model="hardware_config_id" id="configDropdown">
           <option value="" disabled selected>Chose hardware configuration ...</option>
           <option v-for="config in configs" :key="config.uid" :value="config.uid">
             {{config.uid}} - {{ config.description }}
@@ -32,10 +32,10 @@
       </div>
       <div class="input-container">
         <label for="led-front">LED front:</label>
-        <select v-model="formData.led_front" id="ledFrontDropdown">
-          <option value="" disabled selected>Chose LED ...</option>
+        <select v-model="led_id_front" id="ledFrontDropdown">
+          <option disabled selected :value="null">Chose LED ...</option>
           <option v-for="led in leds" :key="led.uid" :value="led.uid">
-            {{led.uid }} - {{ led.description }}
+            {{ led.uid }} - {{ led.description }}
           </option>
       </select>
       </div>
@@ -56,8 +56,8 @@
       <div class="right-content">
       <div class="input-container">
         <label for="led-back">LED back: </label>
-        <select v-model="formData.led_back" id="ledBackDropdown">
-          <option value="" disabled selected>Chose LED ...</option>
+        <select v-model="led_id_back" id="ledBackDropdown">
+          <option disabled selected :value="null">Chose LED ...</option>
           <option v-for="led in leds" :key="led.uid" :value="led.uid">
             {{led.uid }} - {{ led.description }}
           </option>
@@ -81,15 +81,15 @@
       </div>
       <div class="input-container">
         <label for="time-points-sample-taking">Time points sample taking:</label>
-        <input id="time_points_sample_taking" v-model="formData.time_points_sample_taking" type="text" :placeholder="'int array: [1,10,...]'" required>
+        <input id="time_points_sample_taking" v-model="time_points_sample_taking_text" type="text" :placeholder="'1,10,4'" required>
       </div>
       <div class="input-container">
         <label for="size_sample">Sample size:</label>
-        <input id="size_sample" v-model="formData.active_lane" :placeholder="'float'" type="number" required>
+        <input id="size_sample" v-model="formData.size_sample" :placeholder="'float'" type="number" required>
       </div>
       <div class="input-container">
         <label for="measurement-interval">Measurement interval:</label>
-        <input id="measurement_interval" v-model="formData.active_lane" :placeholder="'float'" type="number" required>
+        <input id="measurement_interval" v-model="formData.measurement_interval" :placeholder="'float'" type="number" required>
       </div>
       </div>
       </div>
@@ -105,32 +105,39 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onBeforeUnmount} from 'vue';
 import axios from 'axios'
+import { ExperimentTemplate } from '@/configTypes';
+import { get_hw_conf, get_led, upload_template } from '@/apiBindings';
 
 export default defineComponent({
-   name: 'AddExperiment',
-   emits: ['close-form'],
+  name: 'AddExperiment',
+  emits: ['close-form'],
 
-   setup(_,{emit}){
+  setup(_,{emit}){
+    const led_id_front = ref(null as number | null);
+    const led_id_back = ref(null as number | null);
+    const hardware_config_id = ref(0 as number);
 
-      const formData = ref({
-        uid: '',
+    const time_points_sample_taking_text = ref('');
+
+    const formData = ref({
+        uid: 0,
         name: '',
         date: '',
-        config_file: '',
-        active_lane: '',
-        led_front: '',
-        led_front_intensity: '',
-        led_front_distance_to_vial: '',
-        led_front_exposure_time: '',
-        led_back: '',
-        led_back_intensity: '',
-        led_back_distance_to_vial: '',
-        led_back_exposure_time: '',
-        time_points_sample_taking: '',
-        size_sample: '',
-        measurement_interval: '',
+        config_file: null,
+        active_lane: 0,
+        led_front: null,
+        led_front_intensity: 0.0,
+        led_front_distance_to_vial: 0.0,
+        led_front_exposure_time: 0.0,
+        led_back: null,
+        led_back_intensity: 0.0,
+        led_back_distance_to_vial: 0.0,
+        led_back_exposure_time: 0.0,
+        time_points_sample_taking: [],
+        size_sample: 0.0,
+        measurement_interval: 0.0,
         position_thermocouple: '',
-      });
+      } as ExperimentTemplate);
 
 
       const closeForm = () => {
@@ -144,30 +151,28 @@ export default defineComponent({
         }
 
         //get the config and led values for selected uid
-        const responseConfig = await axios.get('config', {params:{uid: formData.value.config_file}});
-        formData.value.config_file = responseConfig.data;
+        const responseConfig = await get_hw_conf(hardware_config_id.value);
+        formData.value.config_file = responseConfig;
 
-        const responseLedFront = await axios.get('led', {params: {uid: formData.value.led_front}});
-        formData.value.led_front = responseLedFront.data;
+        if (led_id_front.value !== null) {
+          const responseLedFront = await get_led(led_id_front.value);
+          console.log("Led Front downloaded");
+          formData.value.led_front = responseLedFront;
+        } else {
+          formData.value.led_front = null;
+        }
 
-        const responseLedBack = await axios.get('led', {params:{uid: formData.value.led_back}});
-        formData.value.led_back = responseLedBack.data;
+        if (led_id_back.value !== null) {
+          const responseLedBack = await get_led(led_id_back.value);
+          formData.value.led_back = responseLedBack;
+        } else {
+          formData.value.led_back = null;
+        }
 
-        formData.value.time_points_sample_taking = JSON.parse(formData.value.time_points_sample_taking);
+        formData.value.time_points_sample_taking = time_points_sample_taking_text.value.split(",").map(Number);
 
-        const jsonFile = new Blob([JSON.stringify(formData.value)], {
-           type: 'application/json',
-        });
-
-        const uploadJSON = new FormData();
-        uploadJSON.append('json_file', jsonFile, "formData.json");
-        //Console output of JSON data
-        console.log("JSON-Inhalt:", JSON.stringify(formData.value, null, 2));
-        axios.post('exp_tmp', uploadJSON, {
-          headers: {
-           'Content-Type': 'multipart/form-data',
-          }
-        }).catch((err) => {
+        upload_template(formData.value)
+        .catch((err) => {
           console.log(`Fehler beim Hochladen: ${err.response ? err.response.data : err}`)
         })
         closeForm();
@@ -213,6 +218,10 @@ export default defineComponent({
 
       return {
         formData,
+        led_id_front,
+        led_id_back,
+        hardware_config_id,
+        time_points_sample_taking_text,
         closeForm,
         submitForm,
         loadConfigFiles,
