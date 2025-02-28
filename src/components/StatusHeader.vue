@@ -11,6 +11,9 @@
         <span class="status-label">TEMPERATURE: {{pcr_data.reactor_box_state.ambient_temperature}}°C</span>
     </div>
     <div class="status-item">
+        <span class="status-label">TEMPERATURE: {{pcr_data.reactor_box_state.thermocouple_temp}}°C</span>
+    </div>
+    <div class="status-item">
         <span class="status-label">UV-INDEX: {{ pcr_data.reactor_box_state.uv_index}}</span>
     </div>
   </header>
