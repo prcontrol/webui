@@ -20,7 +20,7 @@
       <div class="input-container">
         <label for="hardware-config">Hardware Configuration:</label>
         <select v-model="hardware_config_id" id="configDropdown">
-          <option value="" disabled selected>Chose hardware configuration ...</option>
+          <option disabled selected :value="null">Chose Hardware Configuration</option>
           <option v-for="config in configs" :key="config.uid" :value="config.uid">
             {{config.uid}} - {{ config.description }}
           </option>
@@ -41,14 +41,14 @@
       </div>
       <div class="input-container">
         <label for="led-front-intensity">LED front intensity:</label>
-        <input id="led_front_intensity" v-model="formData.led_front_intensity" :placeholder="'int'" type="number" required >
+        <input id="led_front_intensity" v-model="formData.led_front_intensity" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
         <label for="led-front-distance-to-vial">LED front distance to vial (cm):</label>
         <input id="led_front_distance_to_vial" v-model="formData.led_front_distance_to_vial" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
-        <label for="led-front-belichtungsdauer">LED front exposure time (min):</label>
+        <label for="led-front-belichtungsdauer">LED front exposure time (sec):</label>
         <input id="led_front_exposure_time" v-model="formData.led_front_exposure_time" :placeholder="'float'" type="number" required >
       </div>
       </div>
@@ -65,14 +65,14 @@
       </div>
       <div class="input-container">
         <label for="led-back-intensity">LED back intensity:</label>
-        <input id="led_back_intensity" v-model="formData.led_back_intensity" :placeholder="'int'" type="number" required >
+        <input id="led_back_intensity" v-model="formData.led_back_intensity" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
         <label for="led-back-distance-to-vial">LED back distance to vial (cm):</label>
         <input id="led_back_distance_to_vial" v-model="formData.led_back_distance_to_vial" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
-        <label for="led-back-belichtungsdauer">LED back exposure time (min):</label>
+        <label for="led-back-belichtungsdauer">LED back exposure time (sec):</label>
         <input id="led_back_exposure_time" v-model="formData.led_back_exposure_time" :placeholder="'float'" type="number" required >
       </div>
       <div class="input-container">
@@ -107,6 +107,7 @@ import { defineComponent, ref, onMounted, onBeforeUnmount} from 'vue';
 import axios from 'axios'
 import { ExperimentTemplate } from '@/configTypes';
 import { get_hw_conf, get_led, upload_template } from '@/apiBindings';
+import { fileType } from '@/configTypes';
 
 export default defineComponent({
   name: 'AddExperiment',
@@ -135,10 +136,9 @@ export default defineComponent({
         led_back_exposure_time: 0.0,
         time_points_sample_taking: [],
         size_sample: 0.0,
-        measurement_interval: 0.0,
+        measurement_interval: 1.0,
         position_thermocouple: '',
       } as ExperimentTemplate);
-
 
       const closeForm = () => {
         emit('close-form'); //Mothercomponent is DropdownAddConf.vue
@@ -171,20 +171,14 @@ export default defineComponent({
 
         formData.value.time_points_sample_taking = time_points_sample_taking_text.value.split(",").map(Number);
 
-        upload_template(formData.value)
+        await upload_template(formData.value)
         .catch((err) => {
           console.log(`Fehler beim Hochladen: ${err.response ? err.response.data : err}`)
         })
         closeForm();
       };
 
-      //handle config file fetching
-      type configType = {
-        uid: number
-        description: string
-      }
-
-      const configs = ref<configType[]>([]);
+      const configs = ref<fileType[]>([]);
       const loadConfigFiles = async () => {
         const response = await axios.get('list_config');
         console.log(response);
@@ -192,7 +186,7 @@ export default defineComponent({
         configs.value = data;
       };
 
-      const leds = ref<configType[]>([]) //maybe change type name
+      const leds = ref<fileType[]>([])
       const loadLeds = async () => {
         const response = await axios.get('list_led');
         console.log(response);
@@ -253,7 +247,7 @@ export default defineComponent({
   padding-right: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 880px;
+  width: 700px;
   height: auto;
 }
 .left-content, .right-content {

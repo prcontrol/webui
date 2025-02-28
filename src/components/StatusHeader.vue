@@ -8,7 +8,7 @@
         <span class="status-label">POWER-BOX: {{ powerBoxStatus}}</span>
     </div>
     <div class="status-item">
-        <span class="status-label">TEMPERATURE: {{pcr_data.reactor_box_state.ambient_temperature}}°C</span>
+        <span class="status-label">THERMOCOUPLE: {{pcr_data.reactor_box_state.ambient_temperature}}°C</span>
     </div>
     <div class="status-item">
         <span class="status-label">TEMPERATURE: {{pcr_data.reactor_box_state.thermocouple_temp}}°C</span>

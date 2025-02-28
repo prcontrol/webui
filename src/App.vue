@@ -29,6 +29,7 @@ import SubmitButton from './components/SubmitButton.vue';
 import ReactorLane from './components/ReactorLane.vue';
 import DropdownAddConf from './components/DropdownAddConf.vue';
 import ExportButton from './components/ExportButton.vue';
+import { onMounted } from 'vue';
 
 export default defineComponent({
   name: 'App',
@@ -38,6 +39,11 @@ export default defineComponent({
     ReactorLane,
     DropdownAddConf,
     ExportButton,
+  },
+  setup() {
+    onMounted(() => {
+      document.title = "PCR Controll";
+    });
   },
 });
 </script>

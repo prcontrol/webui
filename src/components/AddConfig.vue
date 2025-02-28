@@ -21,13 +21,13 @@
         <label for="default-distance-led-vial">Default distance led to vial (cm):</label>
         <input id="default_distance_led_vial" v-model="formData.default_distance_led_vial" :placeholder="'float'" type="number" required >
       </div>
-      <div class="input-container">
-        <label for="default-position-thermocouple">Default position of thermocouple:</label>
-        <input id="default_position_thermocouple" v-model="formData.default_position_thermocouple" type="text" :placeholder="'string'" required >
-      </div>
       </div>
 
       <div class="right-content">
+        <div class="input-container">
+        <label for="default-position-thermocouple">Default position of thermocouple:</label>
+        <input id="default_position_thermocouple" v-model="formData.default_position_thermocouple" type="text" :placeholder="'string'" required >
+      </div>
       <div class="input-container">
         <label for="default-temperature-threshold">Default temperature threshold:</label>
         <input id="default_temperature_threshold" v-model="formData.default_temperature_threshold" :placeholder="'float'" type="number" required >
@@ -55,6 +55,7 @@
 import { defineComponent, ref, onMounted, onBeforeUnmount} from 'vue';
 import { HardwareConfig } from '../configTypes.js';
 import { upload_hw_conf } from '../apiBindings';
+import { fileType } from '../configTypes.js';
 
 export default defineComponent({
    name: 'AddConfig',
@@ -85,13 +86,7 @@ export default defineComponent({
         closeForm();
       };
 
-      //fetch the bricklets from backend
-      type brickletType = {
-        uid: number
-        description: string
-      }
-
-      const bricklets = ref<brickletType[]>([]);
+      const bricklets = ref<fileType[]>([]);
       //close form if ESC key pressed
       const handleEsc = (event: KeyboardEvent) => {
       if(event.key === 'Escape') {
@@ -137,7 +132,7 @@ export default defineComponent({
   padding-right: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 880px;
+  width: 700px;
   height: auto;
 }
 .left-content, .right-content {

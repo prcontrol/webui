@@ -35,21 +35,18 @@
           <label for="color">Color:</label>
           <input id="color" v-model="formData.color" type="text" :placeholder="'string'" required />
         </div>
+        </div>
 
+        <div class="right-content">
 
-        <div class="form-field">
+          <div class="form-field">
           <label for="fwhm">FWHM (full width at half maximum):</label>
-          <input id="fwhm" v-model="formData.fwhm" :placeholder="'int'" type="number" required />
+          <input id="fwhm" v-model="formData.fwhm" type="number" required />
         </div>
         <div class="form-field">
           <label for="max-of-emission">Maximum of emission:</label>
           <input id="max_of_emission" v-model="formData.max_of_emission" :placeholder="'int'" type="number" required />
         </div>
-
-        </div>
-
-        <div class="right-content">
-
         <div class="form-field">
           <label for="soldered-by">Soldered by and on date:</label>
           <input id="soldered_by" v-model="formData.soldered_by_on" type="text" :placeholder="'string'" required />
@@ -108,14 +105,12 @@ export default defineComponent({
       emit('close-form');
     };
 
-
     // Handle form submission and create a JSON file
     const submitForm = () => {
       upload_led(formData.value)
       .catch((err) => {
         console.log(`Fehler beim hochladen: ${err}`)
       })
-
       closeForm();
     };
 
@@ -163,7 +158,7 @@ export default defineComponent({
   padding-right: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 880px;
+  width: 700px;
   height: auto;
 }
 
