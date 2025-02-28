@@ -7,12 +7,15 @@
 
       <div class="header">
         <div class="voltage-box">{{ getVoltageByLaneAndPosition(laneNumber, "back") }} V</div>
-        <div class="current-box">{{ getCurrentByLaneAndPosition(laneNumber, "back") }} mA ({{  }} %)</div>
+        <div class="current-box">{{ getCurrentByLaneAndPosition(laneNumber, "back") }} mA</div>
       </div>
 
       <div class="led-info" v-if="selectedExperiment.led_back !== null">
         <div class="led-vial-distance">{{ selectedExperiment.led_back_distance_to_vial }} cm </div>
-        <div class="led-status"> {{ getLedByLane(laneNumber, "back") ? "Connection to LED lost" : "Connected" }}</div>
+        <div class="led-status"> {{ getLedByLane(laneNumber, "back") ? "Connected" : "Connection to LED lost" }}</div>
+        <div class="led-remaining-time">
+          Remaining Time (Back): {{ getRemainingLedBackTimeFormatted(laneNumber) }}
+        </div>
         <div class="led-description" :style="{ borderColor: getLedBorderColor(selectedExperiment.led_back.color) }">
           {{ selectedExperiment.led_back.name }} - ({{ selectedExperiment.led_back.color }})
         </div>
@@ -28,19 +31,20 @@
         </div>
       </div>
 
-      <div class="corr-temp">Corr. Temp.: {{ }} °C</div>
-
       <div class="led-info" v-if="selectedExperiment.led_front !== null">
         <div class="led-description" :style="{ borderColor: getLedBorderColor(selectedExperiment.led_front.color) }" >
           {{ selectedExperiment.led_front.name }} - ({{ selectedExperiment.led_front.color }})
         </div>
-        <div class="led-status"> {{ getLedByLane(laneNumber, "front_and_vial") ? "Connection to LED lost" : "Connected" }}</div>
+        <div class="led-remaining-time">
+           Remaining Time (Front): {{ getRemainingLedFrontTimeFormatted(laneNumber) }}
+        </div>
+        <div class="led-status"> {{ getLedByLane(laneNumber, "front_and_vial") ? "Connected" : "Connection to LED lost"}}</div>
         <div class="led-vial-distance">{{ selectedExperiment.led_front_distance_to_vial }} cm </div>
       </div>
 
       <div class="footer">
         <div class="voltage-box">{{ getVoltageByLaneAndPosition(laneNumber, "front") }} V</div>
-        <div class="current-box">{{ getCurrentByLaneAndPosition(laneNumber, "front") }} mA ({{}} %)</div>
+        <div class="current-box">{{ getCurrentByLaneAndPosition(laneNumber, "front") }} mA</div>
       </div>
 
       <div class="ctrl-buttons">
@@ -249,10 +253,11 @@ export default defineComponent({
     }
 
     // pos specified as back/ front_and_vial
-    const getLedByLane = (laneNum: number | undefined, pos: string) => {
-      if (laneNum === undefined) return "N/A";
+    const getLedByLane = (laneNum: number | undefined, pos: string): boolean => {
+      if (laneNum === undefined) return false;
       const key = `led_in_lane_${laneNum}_${pos}`;
-      return pcr_data.power_box_state[key as keyof typeof pcr_data.power_box_state];
+      const value = pcr_data.power_box_state[key as keyof typeof pcr_data.power_box_state];
+      return Boolean(value)
     }
 
     const getLedBorderColor = (colorValue: string): string => {
@@ -290,6 +295,25 @@ export default defineComponent({
       return pcr_data.experiment_states[laneKey as keyof typeof pcr_data.experiment_states].samples_remaining;
     };
 
+    const getRemainingLedBackTime = (laneNum: number): number => {
+      const laneKey = `state_lane_${laneNum}` as keyof typeof pcr_data.experiment_states;
+      return pcr_data.experiment_states[laneKey].time_left_led_back;
+    };
+
+    const getRemainingLedFrontTime = (laneNum: number): number => {
+      const laneKey = `state_lane_${laneNum}` as keyof typeof pcr_data.experiment_states;
+      return pcr_data.experiment_states[laneKey].time_left_led_front;
+    };
+
+    const getRemainingLedBackTimeFormatted = (laneNum: number): string => {
+      return formatTime(getRemainingLedBackTime(laneNum));
+    };
+
+    const getRemainingLedFrontTimeFormatted = (laneNum: number): string => {
+      return formatTime(getRemainingLedFrontTime(laneNum));
+    };
+
+
     onMounted(()=>{
       fetchExperiments();
       const storedExperiment = localStorage.getItem(`activeExperiment_lane_${props.laneNumber}`);
@@ -318,7 +342,12 @@ export default defineComponent({
       getLedBorderColor,
       sampleActive,
       getRemainingTimeForLane,
-      getRemainingSamplesForLane
+      getRemainingSamplesForLane,
+      getRemainingLedBackTime,
+      getRemainingLedFrontTime,
+      getRemainingLedBackTimeFormatted,
+      getRemainingLedFrontTimeFormatted
+
     };
   },
 });
@@ -608,7 +637,8 @@ export default defineComponent({
 }
 
 .sample-time,
-.remaining-time{
+.remaining-time,
+.led-remaining-time{
   font-weight: bold;
   padding: 5px;
   text-align: left;
